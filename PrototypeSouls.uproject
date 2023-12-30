@@ -1,0 +1,22 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{1FAF4A62-4579-73CE-F37B-B79DC0B3FF7E}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "PrototypeSouls",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "ModelingToolsEditorMode",
+			"Enabled": true,
+			"TargetAllowList": [
+				"Editor"
+			]
+		}
+	]
+}
