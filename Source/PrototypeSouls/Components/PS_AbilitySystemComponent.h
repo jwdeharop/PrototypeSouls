@@ -8,5 +8,8 @@ UCLASS()
 class UPS_AbilitySystemComponent : public UAbilitySystemComponent
 {
 	GENERATED_BODY()
+
+public:
+	bool bAbilitiesGranted = false;
 };
 

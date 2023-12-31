@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "PS_Character.generated.h"
 
+class UPS_GameplayAbility;
 class UPS_AbilitySystemComponent;
 class USpringArmComponent;
 class UCameraComponent;
@@ -38,9 +39,13 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		UInputAction* LookAction;
 
+	void AddCharacterAbilities();
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "ASC")
 		UPS_AbilitySystemComponent* AbilitySystemComponent = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "ASC")
+		TArray<TSubclassOf<UPS_GameplayAbility>> Abilities;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay() override;

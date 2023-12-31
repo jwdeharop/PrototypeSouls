@@ -10,6 +10,8 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "InputActionValue.h"
+#include "GAS/Abilities/PS_GameplayAbility.h"
+#include "Libraries/PS_NetLibrary.h"
 
 APS_Character::APS_Character()
 {
@@ -57,6 +59,8 @@ void APS_Character::BeginPlay()
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
+
+	AddCharacterAbilities();
 }
 
 void APS_Character::PossessedBy(AController* NewController)
@@ -69,6 +73,19 @@ void APS_Character::PossessedBy(AController* NewController)
 	}
 
 	SetOwner(NewController);
+}
+
+void APS_Character::AddCharacterAbilities()
+{
+	if (!UPS_NetLibrary::IsServer(this) || !AbilitySystemComponent || AbilitySystemComponent->bAbilitiesGranted)
+		return;
+
+	for (TSubclassOf<UPS_GameplayAbility> Ability : Abilities)
+	{
+		AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Ability, 1, static_cast<int32>(Ability.GetDefaultObject()->InputID), this));
+	}
+
+	AbilitySystemComponent->bAbilitiesGranted = true;
 }
 
 void APS_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
