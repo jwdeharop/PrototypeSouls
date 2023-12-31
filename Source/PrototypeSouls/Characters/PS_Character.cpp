@@ -39,6 +39,7 @@ APS_Character::APS_Character()
 	FollowCamera->bUsePawnControlRotation = false;
 	
 	AbilitySystemComponent = CreateDefaultSubobject<UPS_AbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	AbilitySystemComponent->SetIsReplicated(true);
 }
 
 UAbilitySystemComponent* APS_Character::GetAbilitySystemComponent() const
@@ -56,6 +57,18 @@ void APS_Character::BeginPlay()
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
+}
+
+void APS_Character::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	}
+
+	SetOwner(NewController);
 }
 
 void APS_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
