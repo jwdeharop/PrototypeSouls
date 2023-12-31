@@ -1,6 +1,8 @@
 #include "Characters/PS_Character.h"
+#include "AbilitySystemComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/PS_AbilitySystemComponent.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -35,6 +37,13 @@ APS_Character::APS_Character()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
+	
+	AbilitySystemComponent = CreateDefaultSubobject<UPS_AbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+}
+
+UAbilitySystemComponent* APS_Character::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
 }
 
 void APS_Character::BeginPlay()
