@@ -11,5 +11,20 @@ class UPS_AbilitySystemComponent : public UAbilitySystemComponent
 
 public:
 	bool bAbilitiesGranted = false;
+
+	void AbilityInputTagPressed(const FGameplayTag& InputTag);
+	void AbilityInputTagReleased(const FGameplayTag& InputTag);
+
+	void ProcessAbilityInput(const float DeltaTime, const bool bGamePaused);
+
+protected:
+	virtual void AbilitySpecInputPressed(FGameplayAbilitySpec& Spec) override;
+	virtual void AbilitySpecInputReleased(FGameplayAbilitySpec& Spec) override;
+
+private:
+	TArray<FGameplayAbilitySpecHandle> InputPressedSpecHandles;
+	TArray<FGameplayAbilitySpecHandle> InputReleasedSpecHandles;
+
+	void ClearAbilityInput();
 };
 

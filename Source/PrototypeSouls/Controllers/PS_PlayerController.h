@@ -11,5 +11,6 @@ class APS_PlayerController : public APlayerController
 
 protected:
 	virtual void AcknowledgePossession(APawn* P) override;
+	virtual void PostProcessInput(const float DeltaTime, const bool bGamePaused) override;
 };
 

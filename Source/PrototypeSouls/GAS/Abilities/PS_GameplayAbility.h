@@ -12,4 +12,6 @@ class UPS_GameplayAbility : public UGameplayAbility
 public:
 	UPROPERTY(EditDefaultsOnly)
 		EPS_AbilityInputID InputID = EPS_AbilityInputID::None;
+	UPROPERTY(EditDefaultsOnly)
+		FGameplayTag InputTag;
 };
