@@ -16,6 +16,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 		float Speed = 0.f;
 	UPROPERTY(BlueprintReadOnly)
+		float Direction = 0.f;
+	UPROPERTY(BlueprintReadOnly)
 		bool bShouldMove = false;
 	UPROPERTY(BlueprintReadOnly)
 		bool bIsFalling = false;

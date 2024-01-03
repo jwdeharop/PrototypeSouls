@@ -1,4 +1,6 @@
 #include "Animations/PS_CharacterAnimInstance.h" 
+
+#include "KismetAnimationLibrary.h"
 #include "Characters/PS_Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -18,8 +20,10 @@ void UPS_CharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	if (!MovementComponent)
 		return;
 
-	Speed = UKismetMathLibrary::VSizeXY(MovementComponent->Velocity);
+	const FVector& Velocity = MovementComponent->Velocity;
+	Speed = UKismetMathLibrary::VSizeXY(Velocity);
 	bShouldMove = Speed > UPS_CharacterAnimInstance_Consts::SpeedMoveThreshold && UKismetMathLibrary::NotEqual_VectorVector(MovementComponent->GetCurrentAcceleration(), FVector::ZeroVector);
 	bIsFalling = MovementComponent->IsFalling();
+	Direction = UKismetAnimationLibrary::CalculateDirection(Velocity, MyCharacter->GetActorRotation());
 	
 }
