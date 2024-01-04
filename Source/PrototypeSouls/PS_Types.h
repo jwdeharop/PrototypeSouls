@@ -8,5 +8,6 @@ enum class EPS_AbilityInputID : uint8
 	None,
 	Confirm,
 	Cancel,
-	Sprint
+	Sprint,
+	Dodge
 };

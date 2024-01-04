@@ -59,6 +59,16 @@ UPS_PlayerAttributeSet* APS_Character::GetPlayerAttributeSet() const
 	return PlayerAttributeSet;
 }
 
+bool APS_Character::IsDodging() const
+{
+	return AbilitySystemComponent ? AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag("Ability.Dodge")) : false;
+}
+
+bool APS_Character::IsMoving() const
+{
+	return !AuxMovementVector.IsNearlyZero();
+}
+
 void APS_Character::BeginPlay()
 {
 	Super::BeginPlay();
@@ -138,7 +148,7 @@ void APS_Character::OnAbilityInputReleased(FGameplayTag GameplayTag)
 	}
 }
 
-void APS_Character::OnCurrentSpeedChanged(const FOnAttributeChangeData& OnAttributeChangeData)
+void APS_Character::OnCurrentSpeedChanged(const FOnAttributeChangeData& OnAttributeChangeData) const
 {
 	if (UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement())
 	{
@@ -146,12 +156,12 @@ void APS_Character::OnCurrentSpeedChanged(const FOnAttributeChangeData& OnAttrib
 	}
 }
 
-void APS_Character::OnRemoveGameplayEffectCallback(const FActiveGameplayEffect& ActiveGameplayEffect)
+void APS_Character::OnRemoveGameplayEffectCallback(const FActiveGameplayEffect& ActiveGameplayEffect) const
 {
 	PlayerAttributeSet->SetCurrentSpeed(PlayerAttributeSet->GetMaxWalkSpeed());
 }
 
-void APS_Character::InitializeAttributes()
+void APS_Character::InitializeAttributes() const
 {
 	if (!AbilitySystemComponent || !DefaultAttributes)
 		return;
@@ -170,7 +180,9 @@ void APS_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APS_Character::Move);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &APS_Character::StopMoving);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APS_Character::Look);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Completed, this, &APS_Character::StopLook);
 
 		if (InputConfigDataAsset)
 		{
@@ -185,7 +197,7 @@ void APS_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 void APS_Character::Move(const FInputActionValue& Value)
 {
-	if (!Controller)
+	if (!Controller || IsDodging())
 		return;
 
 	const FVector2D MovementVector = Value.Get<FVector2D>();
@@ -193,6 +205,9 @@ void APS_Character::Move(const FInputActionValue& Value)
 	const FRotator YawRotation(0, Rotation.Yaw, 0);
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+	AuxMovementVector = MovementVector;
+	AuxMovementVector.Normalize();
 
 	AddMovementInput(ForwardDirection, MovementVector.Y);
 	AddMovementInput(RightDirection, MovementVector.X);
@@ -207,4 +222,13 @@ void APS_Character::Look(const FInputActionValue& Value)
 
 	AddControllerYawInput(LookAxisVector.X);
 	AddControllerPitchInput(LookAxisVector.Y);
+}
+
+void APS_Character::StopLook()
+{
+}
+
+void APS_Character::StopMoving()
+{
+	AuxMovementVector = FVector2d::ZeroVector;
 }

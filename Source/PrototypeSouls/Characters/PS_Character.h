@@ -22,7 +22,10 @@ UCLASS(config=Game)
 class APS_Character : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
+
 public:
+	FVector2D AuxMovementVector = FVector2D::ZeroVector;
+
 	APS_Character();
 
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -31,6 +34,8 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 	UPS_PlayerAttributeSet* GetPlayerAttributeSet() const;
+	bool IsDodging() const;
+	bool IsMoving() const;
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -46,14 +51,14 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		UInputAction* LookAction;
 
-	FDelegateHandle OnSpeedChangeHandle;
-	
+	FDelegateHandle OnSpeedChangeHandle;;
+
 	void AddCharacterAbilities();
 	void OnAbilityInputPressed(FGameplayTag GameplayTag);
 	void OnAbilityInputReleased(FGameplayTag GameplayTag);
-	void OnCurrentSpeedChanged(const FOnAttributeChangeData& OnAttributeChangeData);
-	void OnRemoveGameplayEffectCallback(const FActiveGameplayEffect& ActiveGameplayEffect);
-	void InitializeAttributes();
+	void OnCurrentSpeedChanged(const FOnAttributeChangeData& OnAttributeChangeData) const;
+	void OnRemoveGameplayEffectCallback(const FActiveGameplayEffect& ActiveGameplayEffect) const;
+	void InitializeAttributes() const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "ASC")
@@ -73,5 +78,7 @@ protected:
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void StopLook();
+	void StopMoving();
 };
 

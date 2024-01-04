@@ -10,6 +10,11 @@ namespace UPS_CharacterAnimInstance_Consts
 	static constexpr float SpeedMoveThreshold = 3.f;
 }
 
+float UPS_CharacterAnimInstance::GetDirection() const
+{
+	return Direction;
+}
+
 void UPS_CharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);

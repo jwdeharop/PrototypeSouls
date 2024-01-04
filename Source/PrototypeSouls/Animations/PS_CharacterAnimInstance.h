@@ -7,10 +7,15 @@
 class UCharacterMovementComponent;
 class APS_Character;
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnAnimationCanStop, APS_Character*);
 UCLASS()
 class UPS_CharacterAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
+
+public:
+	FOnAnimationCanStop AnimationCanStop;
+	float GetDirection() const;
 
 protected:
 	UPROPERTY(BlueprintReadOnly)

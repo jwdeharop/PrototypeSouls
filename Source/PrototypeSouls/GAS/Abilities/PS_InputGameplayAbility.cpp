@@ -11,14 +11,14 @@ void UPS_InputGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle 
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	if (K2_CommitAbility())
-	{
-		ResetInputReleaseTask();
+	if (!K2_CommitAbility())
+		return;
+	
+	ResetInputReleaseTask();
 
-		WaitInputReleaseTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
-		WaitInputReleaseTask->OnRelease.AddUniqueDynamic(this, &ThisClass::OnRelease);
-		WaitInputReleaseTask->ReadyForActivation();
-	}
+	WaitInputReleaseTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
+	WaitInputReleaseTask->OnRelease.AddUniqueDynamic(this, &ThisClass::OnRelease);
+	WaitInputReleaseTask->ReadyForActivation();
 }
 
 void UPS_InputGameplayAbility::ResetInputReleaseTask()

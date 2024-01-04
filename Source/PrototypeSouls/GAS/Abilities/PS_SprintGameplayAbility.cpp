@@ -8,10 +8,15 @@ void UPS_SprintGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	{
+		K2_EndAbility();
+		return;
+	}
+
 	if (UPS_NetLibrary::IsServer(this))
 	{
 		SprintGEHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, SprintGameplayEffect.GetDefaultObject(), 1);
-		FString s;
 	}
 }
 
