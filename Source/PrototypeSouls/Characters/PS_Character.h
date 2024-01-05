@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "PS_Character.generated.h"
 
+class APS_Weapon;
 class UGameplayEffect;
 class UPS_PlayerAttributeSet;
 class UPS_GameplayAbility;
@@ -24,6 +25,8 @@ class APS_Character : public ACharacter, public IAbilitySystemInterface
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditDefaultsOnly, Category = Weapons)
+		TSubclassOf<APS_Weapon> InitialWeapon = nullptr;
 	UPROPERTY(Replicated)
 		FVector2D AuxMovementVector = FVector2D::ZeroVector;
 

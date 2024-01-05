@@ -15,6 +15,7 @@
 #include "InputActionValue.h"
 #include "Libraries/PS_NetLibrary.h"
 #include "UnrealNetwork.h"
+#include "Weapons/PS_Weapon.h"
 
 APS_Character::APS_Character()
 {
@@ -77,6 +78,19 @@ void APS_Character::BeginPlay()
 	if (UPS_NetLibrary::IsServer(this))
 	{
 		PlayerAttributeSet->SetCurrentSpeed(PlayerAttributeSet->GetMaxWalkSpeed());
+
+		// In case InitialWeapon is set, we will spawn it. This spawn will occur only on server side.
+		if (InitialWeapon)
+		{
+			const TArray<FName>& Sockets = InitialWeapon->GetDefaultObject<APS_Weapon>()->GetWeaponSockets();
+			for (const FName Socket : Sockets)
+			{
+				if (APS_Weapon* SpawnedWeapon = GetWorld()->SpawnActor<APS_Weapon>(InitialWeapon))
+				{
+					SpawnedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, Socket);
+				}
+			}
+		}
 	}
 
 	const APlayerController* PlayerController = Cast<APlayerController>(Controller);

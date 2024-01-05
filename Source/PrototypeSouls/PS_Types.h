@@ -9,5 +9,13 @@ enum class EPS_AbilityInputID : uint8
 	Confirm,
 	Cancel,
 	Sprint,
-	Dodge
+	Dodge,
+	LightAttack
+};
+
+UENUM(BlueprintType)
+enum class EPS_WeaponType : uint8
+{
+	None = 0,
+	Axe
 };
