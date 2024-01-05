@@ -1,6 +1,8 @@
 #include "GAS/AttributeSets/PS_PlayerAttributeSet.h"
 
 #include "UnrealNetwork.h"
+#include "Characters/PS_Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 void UPS_PlayerAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -13,6 +15,11 @@ void UPS_PlayerAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 void UPS_PlayerAttributeSet::OnRep_CurrentSpeed(const FGameplayAttributeData& OldMoveSpeed) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UPS_PlayerAttributeSet, CurrentSpeed, OldMoveSpeed);
+	const APS_Character* APSCharacter = Cast<APS_Character>(GetOwningActor());
+	if (UCharacterMovementComponent* CharacterMovementComponent = APSCharacter ? Cast<UCharacterMovementComponent>(APSCharacter->GetMovementComponent()) : nullptr)
+	{
+		CharacterMovementComponent->MaxWalkSpeed = CurrentSpeed.GetCurrentValue();
+	}
 }
 
 void UPS_PlayerAttributeSet::OnRep_CurrentHealth(const FGameplayAttributeData& OldHealth) const

@@ -24,7 +24,8 @@ class APS_Character : public ACharacter, public IAbilitySystemInterface
 	GENERATED_BODY()
 
 public:
-	FVector2D AuxMovementVector = FVector2D::ZeroVector;
+	UPROPERTY(Replicated)
+		FVector2D AuxMovementVector = FVector2D::ZeroVector;
 
 	APS_Character();
 
@@ -53,6 +54,9 @@ private:
 
 	FDelegateHandle OnSpeedChangeHandle;;
 
+	UFUNCTION(Server, Reliable)
+		void Server_SetAuxMovementVector(const FVector2D& MovementVector);
+
 	void AddCharacterAbilities();
 	void OnAbilityInputPressed(FGameplayTag GameplayTag);
 	void OnAbilityInputReleased(FGameplayTag GameplayTag);
@@ -75,10 +79,10 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay() override;
 	virtual void PossessedBy(AController* NewController) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
-	void StopLook();
 	void StopMoving();
 };
 

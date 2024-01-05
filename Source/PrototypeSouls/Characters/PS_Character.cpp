@@ -3,17 +3,18 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/PS_AbilitySystemComponent.h"
+#include "DataAssets/PS_InputConfig.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GAS/Abilities/PS_GameplayAbility.h"
+#include "GAS/AttributeSets/PS_PlayerAttributeSet.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "InputActionValue.h"
-#include "DataAssets/PS_InputConfig.h"
-#include "GAS/Abilities/PS_GameplayAbility.h"
-#include "GAS/AttributeSets/PS_PlayerAttributeSet.h"
 #include "Libraries/PS_NetLibrary.h"
+#include "UnrealNetwork.h"
 
 APS_Character::APS_Character()
 {
@@ -73,8 +74,12 @@ void APS_Character::BeginPlay()
 {
 	Super::BeginPlay();
 
-	const APlayerController* PlayerController = Cast<APlayerController>(Controller);
+	if (UPS_NetLibrary::IsServer(this))
+	{
+		PlayerAttributeSet->SetCurrentSpeed(PlayerAttributeSet->GetMaxWalkSpeed());
+	}
 
+	const APlayerController* PlayerController = Cast<APlayerController>(Controller);
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = PlayerController ? ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()) : nullptr)
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
@@ -111,6 +116,18 @@ void APS_Character::PossessedBy(AController* NewController)
 	}
 
 	SetOwner(NewController);
+}
+
+void APS_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME_CONDITION_NOTIFY(APS_Character, AuxMovementVector, COND_None, REPNOTIFY_OnChanged);
+}
+
+void APS_Character::Server_SetAuxMovementVector_Implementation(const FVector2D& MovementVector)
+{
+	AuxMovementVector = MovementVector;
+	AuxMovementVector.Normalize();
 }
 
 void APS_Character::AddCharacterAbilities()
@@ -182,7 +199,6 @@ void APS_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APS_Character::Move);
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &APS_Character::StopMoving);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APS_Character::Look);
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Completed, this, &APS_Character::StopLook);
 
 		if (InputConfigDataAsset)
 		{
@@ -206,8 +222,7 @@ void APS_Character::Move(const FInputActionValue& Value)
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-	AuxMovementVector = MovementVector;
-	AuxMovementVector.Normalize();
+	Server_SetAuxMovementVector(MovementVector);
 
 	AddMovementInput(ForwardDirection, MovementVector.Y);
 	AddMovementInput(RightDirection, MovementVector.X);
@@ -224,11 +239,8 @@ void APS_Character::Look(const FInputActionValue& Value)
 	AddControllerPitchInput(LookAxisVector.Y);
 }
 
-void APS_Character::StopLook()
-{
-}
-
 void APS_Character::StopMoving()
 {
-	AuxMovementVector = FVector2d::ZeroVector;
+	Server_SetAuxMovementVector(FVector2D::ZeroVector);
 }
+
