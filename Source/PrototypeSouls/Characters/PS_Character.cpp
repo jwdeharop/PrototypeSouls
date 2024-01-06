@@ -92,6 +92,8 @@ void APS_Character::BeginPlay()
 {
 	Super::BeginPlay();
 
+	bUseControllerRotationYaw = true;
+
 	if (UPS_NetLibrary::IsServer(this))
 	{
 		PlayerAttributeSet->SetCurrentSpeed(PlayerAttributeSet->GetMaxWalkSpeed());
@@ -247,7 +249,7 @@ void APS_Character::Move(const FInputActionValue& Value)
 {
 	if (!Controller || IsDodging())
 		return;
-
+	bUseControllerRotationYaw = true;
 	const FVector2D MovementVector = Value.Get<FVector2D>();
 	const FRotator Rotation = Controller->GetControlRotation();
 	const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -274,5 +276,6 @@ void APS_Character::Look(const FInputActionValue& Value)
 void APS_Character::StopMoving()
 {
 	Server_SetAuxMovementVector(FVector2D::ZeroVector);
+	bUseControllerRotationYaw = false;
 }
 
