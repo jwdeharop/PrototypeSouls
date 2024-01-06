@@ -250,6 +250,7 @@ void APS_Character::Move(const FInputActionValue& Value)
 {
 	if (!Controller || IsDodging())
 		return;
+
 	bUseControllerRotationYaw = true;
 	const FVector2D MovementVector = Value.Get<FVector2D>();
 	const FRotator Rotation = Controller->GetControlRotation();

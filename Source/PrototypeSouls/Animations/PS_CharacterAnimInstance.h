@@ -4,10 +4,22 @@
 #include "Animation/AnimInstance.h"
 #include "PS_CharacterAnimInstance.generated.h"
 
+enum class EPS_AnimationDirection : uint8;
 class UCharacterMovementComponent;
 class APS_Character;
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnAnimationCanStop, APS_Character*);
+USTRUCT(BlueprintType)
+struct FPS_AnimationDirection
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly)
+		EPS_AnimationDirection Direction;
+	UPROPERTY(EditDefaultsOnly)
+		float DirectionValue = 0.f;
+};
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnAnimationCanStop, const APS_Character*);
 UCLASS()
 class UPS_CharacterAnimInstance : public UAnimInstance
 {
@@ -16,6 +28,7 @@ class UPS_CharacterAnimInstance : public UAnimInstance
 public:
 	FOnAnimationCanStop AnimationCanStop;
 	float GetDirection() const;
+	EPS_AnimationDirection GetAnimationDirection();
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
@@ -26,6 +39,8 @@ protected:
 		bool bShouldMove = false;
 	UPROPERTY(BlueprintReadOnly)
 		bool bIsFalling = false;
+	UPROPERTY(EditDefaultsOnly)
+		TArray<FPS_AnimationDirection> AnimationDirections;
 
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 

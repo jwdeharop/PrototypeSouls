@@ -1,9 +1,9 @@
 #include "Animations/PS_CharacterAnimInstance.h" 
-
-#include "KismetAnimationLibrary.h"
 #include "Characters/PS_Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "KismetAnimationLibrary.h"
+#include "PS_Types.h"
 
 namespace UPS_CharacterAnimInstance_Consts
 {
@@ -13,6 +13,19 @@ namespace UPS_CharacterAnimInstance_Consts
 float UPS_CharacterAnimInstance::GetDirection() const
 {
 	return Direction;
+}
+
+EPS_AnimationDirection UPS_CharacterAnimInstance::GetAnimationDirection()
+{
+	const float LocalDirection = Direction; 
+	AnimationDirections.Sort([&LocalDirection](const FPS_AnimationDirection& AnimationDirectionA, const FPS_AnimationDirection& AnimationDirectionB)
+	{
+		const float SubA = UKismetMathLibrary::Abs(AnimationDirectionA.DirectionValue - LocalDirection);
+		const float SubB = UKismetMathLibrary::Abs(AnimationDirectionB.DirectionValue - LocalDirection);
+		return SubA < SubB;
+	});
+
+	return AnimationDirections[0].Direction;
 }
 
 void UPS_CharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)

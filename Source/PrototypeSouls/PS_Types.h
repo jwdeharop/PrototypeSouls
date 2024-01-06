@@ -25,3 +25,17 @@ enum class EPS_ComboType : uint8
 {
 	LightCombo = 0
 };
+
+UENUM()
+enum class EPS_AnimationDirection : uint8
+{
+	PositiveBack = 0,
+	NegativeBack,
+	BackLeft,
+	BackRight,
+	Left,
+	Right,
+	Front,
+	FrontLeft,
+	FrontRight
+};

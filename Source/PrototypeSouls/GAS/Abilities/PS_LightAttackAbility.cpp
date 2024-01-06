@@ -26,7 +26,7 @@ void UPS_LightAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 	}
 
 	APSCharacter->bUseControllerRotationYaw = true;
-	GetWorld()->GetTimerManager().SetTimer(OnCanChangeYawTimer, this, &ThisClass::OnCanChangeYaw, 0.1f, false);
+	//GetWorld()->GetTimerManager().SetTimer(OnCanChangeYawTimer, this, &ThisClass::OnCanChangeYaw, 0.1f, false);
 
 	if (!PlayCurrentCombo())
 	{

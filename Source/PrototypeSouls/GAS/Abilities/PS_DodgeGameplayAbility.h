@@ -27,5 +27,5 @@ private:
 		void OnCancelled();
 
 	static FName GetDodgeSectionName(const APS_Character* APSCharacter);
-	void OnAnimationCanStop(APS_Character* APSCharacter);
+	void OnAnimationCanStop(const APS_Character* APSCharacter);
 };
