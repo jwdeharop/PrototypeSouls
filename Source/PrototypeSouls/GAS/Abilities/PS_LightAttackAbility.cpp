@@ -4,6 +4,7 @@
 #include "AbilityTask_WaitInputPress.h"
 #include "Characters/PS_Character.h"
 #include "DataAssets/PS_WeaponComboConfig.h"
+#include "Libraries/PS_NetLibrary.h"
 #include "Weapons/PS_Weapon.h"
 
 void UPS_LightAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -18,11 +19,15 @@ void UPS_LightAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 
 	// When trying to light attack, we check what's our current weapon.
 	APSCharacter = CastChecked<APS_Character>(ActorInfo->AvatarActor);
+
 	if (!APSCharacter)
 	{
 		K2_EndAbility();
 		return;
 	}
+
+	APSCharacter->bUseControllerRotationYaw = true;
+	GetWorld()->GetTimerManager().SetTimer(OnCanChangeYawTimer, this, &ThisClass::OnCanChangeYaw, 0.1f, false);
 
 	if (!PlayCurrentCombo())
 	{
@@ -35,11 +40,6 @@ void UPS_LightAttackAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	if (APS_Weapon* APSWeapon = APSCharacter ? APSCharacter->GetCurrentWeapon() : nullptr)
 	{
 		APSWeapon->ResetCombo();
-	}
-
-	if (APSCharacter)
-	{
-		APSCharacter->bUseControllerRotationYaw = true;
 	}
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
@@ -69,8 +69,6 @@ bool UPS_LightAttackAbility::PlayCurrentCombo()
 	if (!APSWeapon)
 		return false;
 
-	APSCharacter->bUseControllerRotationYaw = false;
-
 	UAnimInstance* AnimInstance = APSCharacter->GetMesh() ? APSCharacter->GetMesh()->GetAnimInstance() : nullptr;
 
 	if (AnimInstance)
@@ -88,10 +86,7 @@ bool UPS_LightAttackAbility::PlayCurrentCombo()
 	const FString ComboSection = ComboWeaponInfo.ComboSections[EPS_ComboType::LightCombo].ToString() + FString::FromInt(APSWeapon->ProcessCombo());
 	if (UAbilityTask_PlayMontageAndWait* PlayMontageAndWaitTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, CurrentCombo, 1.f, FName(*ComboSection)))
 	{
-		//PlayMontageAndWaitTask->OnCancelled.AddUniqueDynamic(this, &ThisClass::OnCancelled);
 		PlayMontageAndWaitTask->OnCompleted.AddUniqueDynamic(this, &ThisClass::OnCancelled);
-		//PlayMontageAndWaitTask->OnInterrupted.AddUniqueDynamic(this, &ThisClass::OnCancelled);
-		//PlayMontageAndWaitTask->OnBlendOut.AddUniqueDynamic(this, &ThisClass::OnCancelled);
 		PlayMontageAndWaitTask->ReadyForActivation();
 	}
 
@@ -106,4 +101,9 @@ void UPS_LightAttackAbility::BindToPressEvent()
 		InputPressTask->OnPress.AddUniqueDynamic(this, &UPS_LightAttackAbility::OnPressed);
 		InputPressTask->ReadyForActivation();
 	}
+}
+
+void UPS_LightAttackAbility::OnCanChangeYaw()
+{
+	APSCharacter->bUseControllerRotationYaw = false;
 }

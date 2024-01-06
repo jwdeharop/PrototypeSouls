@@ -56,6 +56,11 @@ void UPS_DodgeGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle 
 	APSCharacter->LaunchCharacter(ForwardVector * DodgeSpeed, false, false);
 }
 
+bool UPS_DodgeGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+{
+	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
+}
+
 void UPS_DodgeGameplayAbility::OnCancelled()
 {
 	K2_EndAbility();

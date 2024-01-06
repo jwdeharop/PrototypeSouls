@@ -92,7 +92,7 @@ void APS_Character::BeginPlay()
 {
 	Super::BeginPlay();
 
-	bUseControllerRotationYaw = true;
+	bUseControllerRotationYaw = false;
 
 	if (UPS_NetLibrary::IsServer(this))
 	{

@@ -19,6 +19,8 @@ private:
 	UPROPERTY(Transient)
 		APS_Character* APSCharacter = nullptr;
 
+	FTimerHandle OnCanChangeYawTimer;
+
 	UFUNCTION()
 		void OnCancelled();
 	UFUNCTION()
@@ -26,4 +28,5 @@ private:
 
 	bool PlayCurrentCombo();
 	void BindToPressEvent();
+	void OnCanChangeYaw();
 };
