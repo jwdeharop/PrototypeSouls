@@ -85,7 +85,7 @@ protected:
 		UPS_WeaponComboConfig* WeaponComboConfig = nullptr;
 	UPROPERTY(Transient)
 		UPS_PlayerAttributeSet* PlayerAttributeSet = nullptr;
-	UPROPERTY(Transient)
+	UPROPERTY(Transient, Replicated)
 		TWeakObjectPtr<APS_Weapon> CurrentWeapon = nullptr;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

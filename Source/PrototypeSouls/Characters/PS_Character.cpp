@@ -156,6 +156,7 @@ void APS_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME_CONDITION_NOTIFY(APS_Character, AuxMovementVector, COND_None, REPNOTIFY_OnChanged);
+	DOREPLIFETIME_CONDITION_NOTIFY(APS_Character, CurrentWeapon, COND_OwnerOnly, REPNOTIFY_OnChanged);
 }
 
 void APS_Character::Server_SetAuxMovementVector_Implementation(const FVector2D& MovementVector)
