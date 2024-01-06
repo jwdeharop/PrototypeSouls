@@ -19,3 +19,9 @@ enum class EPS_WeaponType : uint8
 	None = 0,
 	Axe
 };
+
+UENUM(BlueprintType)
+enum class EPS_ComboType : uint8
+{
+	LightCombo = 0
+};

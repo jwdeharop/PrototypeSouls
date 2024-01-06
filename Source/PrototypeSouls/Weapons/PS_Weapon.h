@@ -16,6 +16,11 @@ public:
 	APS_Weapon();
 
 	const TArray<FName>& GetWeaponSockets() const;
+	EPS_WeaponType GetType() const;
+	uint8 CurrentComboIndex = 1;
+
+	uint8 ProcessCombo();
+	void ResetCombo();
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = Weapon)
@@ -24,5 +29,7 @@ protected:
 		UStaticMeshComponent* StaticMeshComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = Weapon)
 		TArray<FName> WeaponSockets; // In case of various sockets, we will spawn an APS_Weapon for each socket. Ej. Double Axe is going to have 2 sockets.
+	UPROPERTY(EditDefaultsOnly, Category = Weapon)
+		uint8 MaxCombos = 3;
 	
 };

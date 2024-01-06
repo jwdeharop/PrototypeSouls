@@ -7,6 +7,8 @@
 #include "GameFramework/Character.h"
 #include "PS_Character.generated.h"
 
+struct FPS_ComboWeaponInfo;
+class UPS_WeaponComboConfig;
 class APS_Weapon;
 class UGameplayEffect;
 class UPS_PlayerAttributeSet;
@@ -30,6 +32,7 @@ public:
 	UPROPERTY(Replicated)
 		FVector2D AuxMovementVector = FVector2D::ZeroVector;
 
+	bool bCanChangeCombo = false;
 	APS_Character();
 
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -41,6 +44,8 @@ public:
 	bool IsDodging() const;
 	bool IsMoving() const;
 
+	APS_Weapon* GetCurrentWeapon() const;
+	FPS_ComboWeaponInfo GetCurrentWeaponComboInfo() const;
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		USpringArmComponent* CameraBoom;
@@ -76,8 +81,12 @@ protected:
 		UPS_InputConfigDataAsset* InputConfigDataAsset = nullptr;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "ASC")
 		TSubclassOf<UGameplayEffect> DefaultAttributes;
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+		UPS_WeaponComboConfig* WeaponComboConfig = nullptr;
 	UPROPERTY(Transient)
 		UPS_PlayerAttributeSet* PlayerAttributeSet = nullptr;
+	UPROPERTY(Transient)
+		TWeakObjectPtr<APS_Weapon> CurrentWeapon = nullptr;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay() override;

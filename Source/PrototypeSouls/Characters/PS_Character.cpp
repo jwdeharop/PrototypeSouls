@@ -15,6 +15,7 @@
 #include "InputActionValue.h"
 #include "Libraries/PS_NetLibrary.h"
 #include "UnrealNetwork.h"
+#include "DataAssets/PS_WeaponComboConfig.h"
 #include "Weapons/PS_Weapon.h"
 
 APS_Character::APS_Character()
@@ -71,6 +72,22 @@ bool APS_Character::IsMoving() const
 	return !AuxMovementVector.IsNearlyZero();
 }
 
+APS_Weapon* APS_Character::GetCurrentWeapon() const
+{
+	return CurrentWeapon.IsValid() ? CurrentWeapon.Get() : nullptr;
+}
+
+FPS_ComboWeaponInfo APS_Character::GetCurrentWeaponComboInfo() const
+{
+	APS_Weapon* Weapon = GetCurrentWeapon();
+	const FPS_ComboWeaponInfo* WeaponInfo = WeaponComboConfig ? WeaponComboConfig->WeaponConfig.FindByPredicate([&Weapon](const FPS_ComboWeaponInfo& ComboConfig)
+	{
+		return Weapon->GetType() == ComboConfig.Type;
+	}) : nullptr;
+
+	return WeaponInfo ? *WeaponInfo : FPS_ComboWeaponInfo();
+}
+
 void APS_Character::BeginPlay()
 {
 	Super::BeginPlay();
@@ -87,7 +104,8 @@ void APS_Character::BeginPlay()
 			{
 				if (APS_Weapon* SpawnedWeapon = GetWorld()->SpawnActor<APS_Weapon>(InitialWeapon))
 				{
-					SpawnedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, Socket);
+					CurrentWeapon = SpawnedWeapon;
+					CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, Socket);
 				}
 			}
 		}

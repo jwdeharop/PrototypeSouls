@@ -1,5 +1,7 @@
 #include "Weapons/PS_Weapon.h"
 
+#include "AnimNode_RandomPlayer.h"
+
 APS_Weapon::APS_Weapon()
 {
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponnet"));
@@ -12,4 +14,24 @@ APS_Weapon::APS_Weapon()
 const TArray<FName>& APS_Weapon::GetWeaponSockets() const
 {
 	return WeaponSockets;
+}
+
+EPS_WeaponType APS_Weapon::GetType() const
+{
+	return WeaponType;
+}
+
+uint8 APS_Weapon::ProcessCombo()
+{
+	if (CurrentComboIndex > MaxCombos)
+	{
+		ResetCombo();
+	}
+
+	return CurrentComboIndex++;
+}
+
+void APS_Weapon::ResetCombo()
+{
+	CurrentComboIndex = 1;
 }
