@@ -1,14 +1,16 @@
 #include "Controllers/PS_PlayerController.h"
 #include "AbilitySystemComponent.h"
 #include "Characters/PS_Character.h"
+#include "Characters/PS_PlayerState.h"
 #include "Components/PS_AbilitySystemComponent.h"
 
-void APS_PlayerController::AcknowledgePossession(APawn* P)
+void APS_PlayerController::OnPossess(APawn* P)
 {
-	Super::AcknowledgePossession(P);
-	if (APS_Character* APSCharacter = Cast<APS_Character>(P))
+	Super::OnPossess(P);
+
+	if (APS_PlayerState* APSPlayerState = GetPlayerState<APS_PlayerState>())
 	{
-		APSCharacter->GetAbilitySystemComponent()->InitAbilityActorInfo(APSCharacter, APSCharacter);
+		APSPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(APSPlayerState, P);
 	}
 }
 
@@ -21,4 +23,11 @@ void APS_PlayerController::PostProcessInput(const float DeltaTime, const bool bG
 	{
 		AbilitySystemComponent->ProcessAbilityInput(DeltaTime, bGamePaused);
 	}
+}
+
+void APS_PlayerController::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	OnControllerGetsPlayerState.Broadcast(GetPlayerState<APS_PlayerState>());
 }

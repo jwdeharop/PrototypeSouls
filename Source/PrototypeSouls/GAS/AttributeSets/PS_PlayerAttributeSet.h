@@ -22,10 +22,6 @@ public:
 		FGameplayAttributeData CurrentHealth;
 	ATTRIBUTE_ACCESSORS(UPS_PlayerAttributeSet, CurrentHealth);
 
-	UPROPERTY(BlueprintReadOnly, Category = "ASC | Attributes", ReplicatedUsing = OnRep_CurrentSpeed)
-		FGameplayAttributeData CurrentSpeed;
-	ATTRIBUTE_ACCESSORS(UPS_PlayerAttributeSet, CurrentSpeed);
-
 	UPROPERTY(BlueprintReadOnly, Category = "ASC | Attributes", ReplicatedUsing = OnRep_MaxWalkSpeed)
 		FGameplayAttributeData MaxWalkSpeed;
 	ATTRIBUTE_ACCESSORS(UPS_PlayerAttributeSet, MaxWalkSpeed)
@@ -34,8 +30,6 @@ protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 private:
-	UFUNCTION()
-		void OnRep_CurrentSpeed(const FGameplayAttributeData& OldMoveSpeed) const;
 	UFUNCTION()
 		void OnRep_CurrentHealth(const FGameplayAttributeData& OldHealth) const;
 	UFUNCTION()

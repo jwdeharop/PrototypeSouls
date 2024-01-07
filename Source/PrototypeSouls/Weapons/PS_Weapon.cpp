@@ -6,7 +6,7 @@ APS_Weapon::APS_Weapon()
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	StaticMeshComponent->SetupAttachment(RootComponent);
 
-	SetReplicates(true);
+	bReplicates = true;
 }
 
 const TArray<FName>& APS_Weapon::GetWeaponSockets() const

@@ -4,6 +4,7 @@
 #include "AbilitySystemInterface.h"
 #include "GameplayEffectTypes.h"
 #include "GameplayTagContainer.h"
+#include "PS_PlayerState.h"
 #include "GameFramework/Character.h"
 #include "PS_Character.generated.h"
 
@@ -33,7 +34,8 @@ public:
 		FVector2D AuxMovementVector = FVector2D::ZeroVector;
 
 	bool bCanChangeCombo = false;
-	APS_Character();
+
+	APS_Character(const class FObjectInitializer& ObjectInitializer);
 
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
@@ -41,11 +43,14 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 	UPS_PlayerAttributeSet* GetPlayerAttributeSet() const;
+	APS_Weapon* GetCurrentWeapon() const;
+
+	float GetMaxSpeed() const;
 	bool IsDodging() const;
 	bool IsMoving() const;
 
-	APS_Weapon* GetCurrentWeapon() const;
 	FPS_ComboWeaponInfo GetCurrentWeaponComboInfo() const;
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		USpringArmComponent* CameraBoom;
@@ -60,8 +65,6 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		UInputAction* LookAction;
 
-	FDelegateHandle OnSpeedChangeHandle;;
-
 	UFUNCTION(Server, Reliable)
 		void Server_SetAuxMovementVector(const FVector2D& MovementVector);
 
@@ -69,8 +72,8 @@ private:
 	void OnAbilityInputPressed(FGameplayTag GameplayTag);
 	void OnAbilityInputReleased(FGameplayTag GameplayTag);
 	void OnCurrentSpeedChanged(const FOnAttributeChangeData& OnAttributeChangeData) const;
-	void OnRemoveGameplayEffectCallback(const FActiveGameplayEffect& ActiveGameplayEffect) const;
 	void InitializeAttributes() const;
+	void OnControllerGetsPlayerState(APS_PlayerState* APSPlayerState);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "ASC")
@@ -92,6 +95,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void OnRep_PlayerState() override;
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);

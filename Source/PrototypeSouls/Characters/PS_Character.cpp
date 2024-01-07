@@ -3,7 +3,10 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/PS_AbilitySystemComponent.h"
+#include "Components/PS_MovementComponent.h"
+#include "Controllers/PS_PlayerController.h"
 #include "DataAssets/PS_InputConfig.h"
+#include "DataAssets/PS_WeaponComboConfig.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -14,11 +17,11 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "InputActionValue.h"
 #include "Libraries/PS_NetLibrary.h"
+#include "PS_PlayerState.h"
 #include "UnrealNetwork.h"
-#include "DataAssets/PS_WeaponComboConfig.h"
 #include "Weapons/PS_Weapon.h"
 
-APS_Character::APS_Character()
+APS_Character::APS_Character(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UPS_MovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 		
@@ -44,12 +47,6 @@ APS_Character::APS_Character()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
-	
-	AbilitySystemComponent = CreateDefaultSubobject<UPS_AbilitySystemComponent>(TEXT("AbilitySystemComponent"));
-	AbilitySystemComponent->SetIsReplicated(true);
-	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
-
-	PlayerAttributeSet = CreateDefaultSubobject<UPS_PlayerAttributeSet>(TEXT("PlayerAttributeSet"));
 }
 
 UAbilitySystemComponent* APS_Character::GetAbilitySystemComponent() const
@@ -77,6 +74,11 @@ APS_Weapon* APS_Character::GetCurrentWeapon() const
 	return CurrentWeapon.IsValid() ? CurrentWeapon.Get() : nullptr;
 }
 
+float APS_Character::GetMaxSpeed() const
+{
+	return PlayerAttributeSet ? PlayerAttributeSet->GetMaxWalkSpeed() : 0.f;
+}
+
 FPS_ComboWeaponInfo APS_Character::GetCurrentWeaponComboInfo() const
 {
 	APS_Weapon* Weapon = GetCurrentWeapon();
@@ -92,12 +94,22 @@ void APS_Character::BeginPlay()
 {
 	Super::BeginPlay();
 
+	const APS_PlayerState* APSPlayerState = GetPlayerState<APS_PlayerState>();
+	if (APSPlayerState)
+	{
+		OnRep_PlayerState();
+	}
+	else
+	{
+		if (APS_PlayerController* APSPlayerController = GetController<APS_PlayerController>())
+		{
+			APSPlayerController->OnControllerGetsPlayerState.AddUObject(this, &ThisClass::OnControllerGetsPlayerState);
+		}
+	}
 	bUseControllerRotationYaw = false;
 
 	if (UPS_NetLibrary::IsServer(this))
 	{
-		PlayerAttributeSet->SetCurrentSpeed(PlayerAttributeSet->GetMaxWalkSpeed());
-
 		// In case InitialWeapon is set, we will spawn it. This spawn will occur only on server side.
 		if (InitialWeapon)
 		{
@@ -118,38 +130,22 @@ void APS_Character::BeginPlay()
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
-
-	if (AbilitySystemComponent)
-	{
-		if (!OnSpeedChangeHandle.IsValid())
-		{
-			OnSpeedChangeHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(PlayerAttributeSet->GetCurrentSpeedAttribute()).AddUObject(this, &ThisClass::OnCurrentSpeedChanged);
-		}
-
-		if (UPS_NetLibrary::IsServer(this))
-		{
-			AbilitySystemComponent->OnAnyGameplayEffectRemovedDelegate().AddUObject(this, &ThisClass::OnRemoveGameplayEffectCallback);
-		}
-	}
 }
 
 void APS_Character::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	if (AbilitySystemComponent)
-	{
-		AbilitySystemComponent->InitAbilityActorInfo(this, this);
-		if (!OnSpeedChangeHandle.IsValid())
-		{
-			OnSpeedChangeHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(PlayerAttributeSet->GetCurrentSpeedAttribute()).AddUObject(this, &ThisClass::OnCurrentSpeedChanged);
-		}
+	APS_PlayerState* APSPlayerState = GetPlayerState<APS_PlayerState>();
+	UPS_AbilitySystemComponent* UPSAbilitySystemComponent = APSPlayerState ? CastChecked<UPS_AbilitySystemComponent>(APSPlayerState->GetAbilitySystemComponent()) : nullptr;
+	if (!UPSAbilitySystemComponent)
+		return;
 
-		InitializeAttributes();
-		AddCharacterAbilities();
-	}
-
-	SetOwner(NewController);
+	AbilitySystemComponent = UPSAbilitySystemComponent;
+	AbilitySystemComponent->InitAbilityActorInfo(APSPlayerState, this);
+	PlayerAttributeSet = APSPlayerState->GetPlayerAttributeSet();
+	InitializeAttributes();
+	AddCharacterAbilities();
 }
 
 void APS_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -157,6 +153,19 @@ void APS_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME_CONDITION_NOTIFY(APS_Character, AuxMovementVector, COND_None, REPNOTIFY_OnChanged);
 	DOREPLIFETIME_CONDITION_NOTIFY(APS_Character, CurrentWeapon, COND_OwnerOnly, REPNOTIFY_OnChanged);
+}
+
+void APS_Character::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+	APS_PlayerState* APSPlayerState = GetPlayerState<APS_PlayerState>();
+	UPS_AbilitySystemComponent* UPSAbilitySystemComponent = APSPlayerState ? CastChecked<UPS_AbilitySystemComponent>(APSPlayerState->GetAbilitySystemComponent()) : nullptr;
+	if (!UPSAbilitySystemComponent)
+		return;
+
+	AbilitySystemComponent = UPSAbilitySystemComponent;
+	AbilitySystemComponent->InitAbilityActorInfo(APSPlayerState, this);
+	PlayerAttributeSet = APSPlayerState->GetPlayerAttributeSet();
 }
 
 void APS_Character::Server_SetAuxMovementVector_Implementation(const FVector2D& MovementVector)
@@ -208,11 +217,6 @@ void APS_Character::OnCurrentSpeedChanged(const FOnAttributeChangeData& OnAttrib
 	}
 }
 
-void APS_Character::OnRemoveGameplayEffectCallback(const FActiveGameplayEffect& ActiveGameplayEffect) const
-{
-	PlayerAttributeSet->SetCurrentSpeed(PlayerAttributeSet->GetMaxWalkSpeed());
-}
-
 void APS_Character::InitializeAttributes() const
 {
 	if (!AbilitySystemComponent || !DefaultAttributes)
@@ -223,6 +227,11 @@ void APS_Character::InitializeAttributes() const
 
 	const FGameplayEffectSpecHandle NewHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributes, 1, EffectContext);
 	AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*NewHandle.Data.Get(), AbilitySystemComponent);
+}
+
+void APS_Character::OnControllerGetsPlayerState(APS_PlayerState* APSPlayerState)
+{
+	OnRep_PlayerState();
 }
 
 void APS_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
