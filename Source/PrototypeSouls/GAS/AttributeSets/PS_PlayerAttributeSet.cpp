@@ -1,8 +1,6 @@
 #include "GAS/AttributeSets/PS_PlayerAttributeSet.h"
-
-#include "UnrealNetwork.h"
 #include "Characters/PS_Character.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "UnrealNetwork.h"
 
 void UPS_PlayerAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

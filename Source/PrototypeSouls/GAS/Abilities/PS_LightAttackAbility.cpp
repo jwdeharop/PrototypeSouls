@@ -1,5 +1,4 @@
 #include "GAS/Abilities/PS_LightAttackAbility.h"
-
 #include "AbilityTask_PlayMontageAndWait.h"
 #include "AbilityTask_WaitInputPress.h"
 #include "Characters/PS_Character.h"
@@ -26,7 +25,6 @@ void UPS_LightAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 	}
 
 	APSCharacter->bUseControllerRotationYaw = true;
-	//GetWorld()->GetTimerManager().SetTimer(OnCanChangeYawTimer, this, &ThisClass::OnCanChangeYaw, 0.1f, false);
 
 	if (!PlayCurrentCombo())
 	{
