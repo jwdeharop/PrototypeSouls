@@ -1,4 +1,4 @@
-#include "Characters/PS_Character.h"
+#include "Characters/PS_PlayerCharacter.h"
 #include "AbilitySystemComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -21,7 +21,7 @@
 #include "UnrealNetwork.h"
 #include "Weapons/PS_Weapon.h"
 
-APS_Character::APS_Character(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UPS_MovementComponent>(ACharacter::CharacterMovementComponentName))
+APS_PlayerCharacter::APS_PlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UPS_MovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 		
@@ -49,37 +49,37 @@ APS_Character::APS_Character(const class FObjectInitializer& ObjectInitializer) 
 	FollowCamera->bUsePawnControlRotation = false;
 }
 
-UAbilitySystemComponent* APS_Character::GetAbilitySystemComponent() const
+UAbilitySystemComponent* APS_PlayerCharacter::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
 }
 
-UPS_PlayerAttributeSet* APS_Character::GetPlayerAttributeSet() const
+UPS_PlayerAttributeSet* APS_PlayerCharacter::GetPlayerAttributeSet() const
 {
 	return PlayerAttributeSet;
 }
 
-bool APS_Character::IsDodging() const
+bool APS_PlayerCharacter::IsDodging() const
 {
 	return AbilitySystemComponent ? AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag("Ability.Dodge")) : false;
 }
 
-bool APS_Character::IsMoving() const
+bool APS_PlayerCharacter::IsMoving() const
 {
 	return !AuxMovementVector.IsNearlyZero();
 }
 
-APS_Weapon* APS_Character::GetCurrentWeapon() const
+APS_Weapon* APS_PlayerCharacter::GetCurrentWeapon() const
 {
 	return CurrentWeapon.IsValid() ? CurrentWeapon.Get() : nullptr;
 }
 
-float APS_Character::GetMaxSpeed() const
+float APS_PlayerCharacter::GetMaxSpeed() const
 {
 	return PlayerAttributeSet ? PlayerAttributeSet->GetMaxWalkSpeed() : 0.f;
 }
 
-FPS_ComboWeaponInfo APS_Character::GetCurrentWeaponComboInfo() const
+FPS_ComboWeaponInfo APS_PlayerCharacter::GetCurrentWeaponComboInfo() const
 {
 	APS_Weapon* Weapon = GetCurrentWeapon();
 	const FPS_ComboWeaponInfo* WeaponInfo = WeaponComboConfig ? WeaponComboConfig->WeaponConfig.FindByPredicate([&Weapon](const FPS_ComboWeaponInfo& ComboConfig)
@@ -90,7 +90,7 @@ FPS_ComboWeaponInfo APS_Character::GetCurrentWeaponComboInfo() const
 	return WeaponInfo ? *WeaponInfo : FPS_ComboWeaponInfo();
 }
 
-void APS_Character::BeginPlay()
+void APS_PlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -132,7 +132,7 @@ void APS_Character::BeginPlay()
 	}
 }
 
-void APS_Character::PossessedBy(AController* NewController)
+void APS_PlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
@@ -148,14 +148,14 @@ void APS_Character::PossessedBy(AController* NewController)
 	AddCharacterAbilities();
 }
 
-void APS_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void APS_PlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME_CONDITION_NOTIFY(APS_Character, AuxMovementVector, COND_None, REPNOTIFY_OnChanged);
-	DOREPLIFETIME_CONDITION_NOTIFY(APS_Character, CurrentWeapon, COND_OwnerOnly, REPNOTIFY_OnChanged);
+	DOREPLIFETIME_CONDITION_NOTIFY(APS_PlayerCharacter, AuxMovementVector, COND_None, REPNOTIFY_OnChanged);
+	DOREPLIFETIME_CONDITION_NOTIFY(APS_PlayerCharacter, CurrentWeapon, COND_OwnerOnly, REPNOTIFY_OnChanged);
 }
 
-void APS_Character::OnRep_PlayerState()
+void APS_PlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 	APS_PlayerState* APSPlayerState = GetPlayerState<APS_PlayerState>();
@@ -168,13 +168,13 @@ void APS_Character::OnRep_PlayerState()
 	PlayerAttributeSet = APSPlayerState->GetPlayerAttributeSet();
 }
 
-void APS_Character::Server_SetAuxMovementVector_Implementation(const FVector2D& MovementVector)
+void APS_PlayerCharacter::Server_SetAuxMovementVector_Implementation(const FVector2D& MovementVector)
 {
 	AuxMovementVector = MovementVector;
 	AuxMovementVector.Normalize();
 }
 
-void APS_Character::AddCharacterAbilities()
+void APS_PlayerCharacter::AddCharacterAbilities()
 {
 	if (!UPS_NetLibrary::IsServer(this) || !AbilitySystemComponent || AbilitySystemComponent->bAbilitiesGranted)
 		return;
@@ -193,7 +193,7 @@ void APS_Character::AddCharacterAbilities()
 	AbilitySystemComponent->bAbilitiesGranted = true;
 }
 
-void APS_Character::OnAbilityInputPressed(FGameplayTag GameplayTag)
+void APS_PlayerCharacter::OnAbilityInputPressed(FGameplayTag GameplayTag)
 {
 	if (AbilitySystemComponent)
 	{
@@ -201,7 +201,7 @@ void APS_Character::OnAbilityInputPressed(FGameplayTag GameplayTag)
 	}
 }
 
-void APS_Character::OnAbilityInputReleased(FGameplayTag GameplayTag)
+void APS_PlayerCharacter::OnAbilityInputReleased(FGameplayTag GameplayTag)
 {
 	if (AbilitySystemComponent)
 	{
@@ -209,7 +209,7 @@ void APS_Character::OnAbilityInputReleased(FGameplayTag GameplayTag)
 	}
 }
 
-void APS_Character::OnCurrentSpeedChanged(const FOnAttributeChangeData& OnAttributeChangeData) const
+void APS_PlayerCharacter::OnCurrentSpeedChanged(const FOnAttributeChangeData& OnAttributeChangeData) const
 {
 	if (UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement())
 	{
@@ -217,7 +217,7 @@ void APS_Character::OnCurrentSpeedChanged(const FOnAttributeChangeData& OnAttrib
 	}
 }
 
-void APS_Character::InitializeAttributes() const
+void APS_PlayerCharacter::InitializeAttributes() const
 {
 	if (!AbilitySystemComponent || !DefaultAttributes)
 		return;
@@ -229,20 +229,20 @@ void APS_Character::InitializeAttributes() const
 	AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*NewHandle.Data.Get(), AbilitySystemComponent);
 }
 
-void APS_Character::OnControllerGetsPlayerState(APS_PlayerState* APSPlayerState)
+void APS_PlayerCharacter::OnControllerGetsPlayerState(APS_PlayerState* APSPlayerState)
 {
 	OnRep_PlayerState();
 }
 
-void APS_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void APS_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
 		
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APS_Character::Move);
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &APS_Character::StopMoving);
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APS_Character::Look);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APS_PlayerCharacter::Move);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &APS_PlayerCharacter::StopMoving);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APS_PlayerCharacter::Look);
 
 		if (InputConfigDataAsset)
 		{
@@ -255,7 +255,7 @@ void APS_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	}
 }
 
-void APS_Character::Move(const FInputActionValue& Value)
+void APS_PlayerCharacter::Move(const FInputActionValue& Value)
 {
 	if (!Controller || IsDodging())
 		return;
@@ -273,7 +273,7 @@ void APS_Character::Move(const FInputActionValue& Value)
 	AddMovementInput(RightDirection, MovementVector.X);
 }
 
-void APS_Character::Look(const FInputActionValue& Value)
+void APS_PlayerCharacter::Look(const FInputActionValue& Value)
 {
 	if (!Controller)
 		return;
@@ -284,7 +284,7 @@ void APS_Character::Look(const FInputActionValue& Value)
 	AddControllerPitchInput(LookAxisVector.Y);
 }
 
-void APS_Character::StopMoving()
+void APS_PlayerCharacter::StopMoving()
 {
 	Server_SetAuxMovementVector(FVector2D::ZeroVector);
 	bUseControllerRotationYaw = false;

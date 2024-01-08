@@ -4,7 +4,7 @@
 #include "PS_GameplayAbility.h"
 #include "PS_DodgeGameplayAbility.generated.h"
 
-class APS_Character;
+class APS_PlayerCharacter;
 
 UCLASS()
 class UPS_DodgeGameplayAbility : public UPS_GameplayAbility
@@ -26,6 +26,6 @@ private:
 	UFUNCTION()
 		void OnCancelled();
 
-	static FName GetDodgeSectionName(const APS_Character* APSCharacter);
-	void OnAnimationCanStop(const APS_Character* APSCharacter);
+	static FName GetDodgeSectionName(const APS_PlayerCharacter* APSCharacter);
+	void OnAnimationCanStop(const APS_PlayerCharacter* APSCharacter);
 };

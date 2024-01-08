@@ -4,7 +4,7 @@
 #include "GAS/Abilities/PS_GameplayAbility.h"
 #include "PS_LightAttackAbility.generated.h"
 
-class APS_Character;
+class APS_PlayerCharacter;
 
 UCLASS()
 class UPS_LightAttackAbility : public UPS_GameplayAbility
@@ -17,7 +17,7 @@ protected:
 
 private:
 	UPROPERTY(Transient)
-		APS_Character* APSCharacter = nullptr;
+		APS_PlayerCharacter* APSCharacter = nullptr;
 
 	FTimerHandle OnCanChangeYawTimer;
 

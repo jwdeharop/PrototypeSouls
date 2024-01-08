@@ -2,7 +2,7 @@
 #include "AbilityTask_PlayMontageAndWait.h"
 #include "AbilityTask_WaitInputPress.h"
 #include "Animations/PS_CharacterAnimInstance.h"
-#include "Characters/PS_Character.h"
+#include "Characters/PS_PlayerCharacter.h"
 
 UPS_DodgeGameplayAbility::UPS_DodgeGameplayAbility()
 {
@@ -13,7 +13,7 @@ void UPS_DodgeGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle 
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	APS_Character* APSCharacter = Cast<APS_Character>(ActorInfo->AvatarActor);
+	APS_PlayerCharacter* APSCharacter = Cast<APS_PlayerCharacter>(ActorInfo->AvatarActor);
 	const FName DodgeSection = GetDodgeSectionName(APSCharacter);
 	if (!APSCharacter || DodgeSection == NAME_None)
 	{
@@ -51,7 +51,7 @@ void UPS_DodgeGameplayAbility::OnCancelled()
 	K2_EndAbility();
 }
 
-FName UPS_DodgeGameplayAbility::GetDodgeSectionName(const APS_Character* APSCharacter)
+FName UPS_DodgeGameplayAbility::GetDodgeSectionName(const APS_PlayerCharacter* APSCharacter)
 {
 	const USkeletalMeshComponent* Mesh = APSCharacter ? APSCharacter->GetMesh() : nullptr;
 	UPS_CharacterAnimInstance* AnimInstance = Mesh ? Cast<UPS_CharacterAnimInstance>(Mesh->GetAnimInstance()) : nullptr;
@@ -80,7 +80,7 @@ FName UPS_DodgeGameplayAbility::GetDodgeSectionName(const APS_Character* APSChar
 	}
 }
 
-void UPS_DodgeGameplayAbility::OnAnimationCanStop(const APS_Character* APSCharacter)
+void UPS_DodgeGameplayAbility::OnAnimationCanStop(const APS_PlayerCharacter* APSCharacter)
 {
 	UPS_CharacterAnimInstance* AnimInstance = APSCharacter ? CastChecked<UPS_CharacterAnimInstance>(APSCharacter->GetMesh()->GetAnimInstance()) : nullptr;
 	if (!AnimInstance)

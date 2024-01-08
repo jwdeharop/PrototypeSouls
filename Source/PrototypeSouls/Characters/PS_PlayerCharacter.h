@@ -6,7 +6,7 @@
 #include "GameplayTagContainer.h"
 #include "PS_PlayerState.h"
 #include "GameFramework/Character.h"
-#include "PS_Character.generated.h"
+#include "PS_PlayerCharacter.generated.h"
 
 struct FPS_ComboWeaponInfo;
 class UPS_WeaponComboConfig;
@@ -23,7 +23,7 @@ class UPS_InputConfigDataAsset;
 struct FInputActionValue;
 
 UCLASS(config=Game)
-class APS_Character : public ACharacter, public IAbilitySystemInterface
+class APS_PlayerCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -35,7 +35,7 @@ public:
 
 	bool bCanChangeCombo = false;
 
-	APS_Character(const class FObjectInitializer& ObjectInitializer);
+	APS_PlayerCharacter(const class FObjectInitializer& ObjectInitializer);
 
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }

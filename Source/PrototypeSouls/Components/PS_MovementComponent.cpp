@@ -1,8 +1,8 @@
 #include "Components/PS_MovementComponent.h"
-#include "Characters/PS_Character.h"
+#include "Characters/PS_PlayerCharacter.h"
 
 float UPS_MovementComponent::GetMaxSpeed() const
 {
-	const APS_Character* APSCharacter = Cast<APS_Character>(GetOwner());
+	const APS_PlayerCharacter* APSCharacter = Cast<APS_PlayerCharacter>(GetOwner());
 	return APSCharacter ? APSCharacter->GetMaxSpeed() : Super::GetMaxSpeed();
 }

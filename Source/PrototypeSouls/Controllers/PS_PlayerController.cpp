@@ -1,6 +1,6 @@
 #include "Controllers/PS_PlayerController.h"
 #include "AbilitySystemComponent.h"
-#include "Characters/PS_Character.h"
+#include "Characters/PS_PlayerCharacter.h"
 #include "Characters/PS_PlayerState.h"
 #include "Components/PS_AbilitySystemComponent.h"
 
@@ -18,7 +18,7 @@ void APS_PlayerController::PostProcessInput(const float DeltaTime, const bool bG
 {
 	Super::PostProcessInput(DeltaTime, bGamePaused);
 
-	const APS_Character* APSCharacter = Cast<APS_Character>(GetPawn());
+	const APS_PlayerCharacter* APSCharacter = Cast<APS_PlayerCharacter>(GetPawn());
 	if (UPS_AbilitySystemComponent* AbilitySystemComponent = APSCharacter ? Cast<UPS_AbilitySystemComponent>(APSCharacter->GetAbilitySystemComponent()) : nullptr)
 	{
 		AbilitySystemComponent->ProcessAbilityInput(DeltaTime, bGamePaused);

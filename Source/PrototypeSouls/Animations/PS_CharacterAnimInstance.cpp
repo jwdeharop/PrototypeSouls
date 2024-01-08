@@ -1,5 +1,5 @@
 #include "Animations/PS_CharacterAnimInstance.h" 
-#include "Characters/PS_Character.h"
+#include "Characters/PS_PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "KismetAnimationLibrary.h"
@@ -32,7 +32,7 @@ void UPS_CharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	MyCharacter = Cast<APS_Character>(TryGetPawnOwner());
+	MyCharacter = Cast<APS_PlayerCharacter>(TryGetPawnOwner());
 	MovementComponent = MyCharacter ? Cast<UCharacterMovementComponent>(MyCharacter->GetMovementComponent()) : nullptr;
 
 	if (!MovementComponent)

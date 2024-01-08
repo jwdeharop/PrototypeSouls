@@ -6,7 +6,7 @@
 
 enum class EPS_AnimationDirection : uint8;
 class UCharacterMovementComponent;
-class APS_Character;
+class APS_PlayerCharacter;
 
 USTRUCT(BlueprintType)
 struct FPS_AnimationDirection
@@ -19,7 +19,7 @@ struct FPS_AnimationDirection
 		float DirectionValue = 0.f;
 };
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnAnimationCanStop, const APS_Character*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnAnimationCanStop, const APS_PlayerCharacter*);
 UCLASS()
 class UPS_CharacterAnimInstance : public UAnimInstance
 {
@@ -46,7 +46,7 @@ protected:
 
 private:
 	UPROPERTY(Transient)
-		APS_Character* MyCharacter = nullptr;;
+		APS_PlayerCharacter* MyCharacter = nullptr;;
 	UPROPERTY(Transient)
 		UCharacterMovementComponent* MovementComponent = nullptr;
 };

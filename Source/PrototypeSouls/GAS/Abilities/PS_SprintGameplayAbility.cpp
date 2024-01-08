@@ -1,6 +1,6 @@
 #include "GAS/Abilities/PS_SprintGameplayAbility.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
-#include "Characters/PS_Character.h"
+#include "Characters/PS_PlayerCharacter.h"
 #include "Components/PS_AbilitySystemComponent.h"
 #include "Libraries/PS_NetLibrary.h"
 
@@ -26,7 +26,7 @@ void UPS_SprintGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Hand
 
 	if (UPS_NetLibrary::IsServer(this))
 	{
-		const APS_Character* APSCharacter = Cast<APS_Character>(ActorInfo->AvatarActor);
+		const APS_PlayerCharacter* APSCharacter = Cast<APS_PlayerCharacter>(ActorInfo->AvatarActor);
 		UPS_AbilitySystemComponent* AbilitySystemComponent = APSCharacter ? Cast<UPS_AbilitySystemComponent>(APSCharacter->GetAbilitySystemComponent()) : nullptr;
 		if (!AbilitySystemComponent)
 			return;
