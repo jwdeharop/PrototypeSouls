@@ -2,7 +2,7 @@
 #include "AbilityTask_PlayMontageAndWait.h"
 #include "AbilityTask_WaitInputPress.h"
 #include "Animations/PS_CharacterAnimInstance.h"
-#include "Characters/PS_PlayerCharacter.h"
+#include "Characters/Player/PS_PlayerCharacter.h"
 
 UPS_DodgeGameplayAbility::UPS_DodgeGameplayAbility()
 {

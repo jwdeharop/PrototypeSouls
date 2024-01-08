@@ -1,7 +1,7 @@
 #include "Controllers/PS_PlayerController.h"
 #include "AbilitySystemComponent.h"
-#include "Characters/PS_PlayerCharacter.h"
-#include "Characters/PS_PlayerState.h"
+#include "Characters/Player/PS_PlayerCharacter.h"
+#include "Characters/Player/PS_PlayerState.h"
 #include "Components/PS_AbilitySystemComponent.h"
 
 void APS_PlayerController::OnPossess(APawn* P)

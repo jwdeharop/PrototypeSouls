@@ -1,7 +1,7 @@
 #include "GAS/Abilities/PS_LightAttackAbility.h"
 #include "AbilityTask_PlayMontageAndWait.h"
 #include "AbilityTask_WaitInputPress.h"
-#include "Characters/PS_PlayerCharacter.h"
+#include "Characters/Player/PS_PlayerCharacter.h"
 #include "DataAssets/PS_WeaponComboConfig.h"
 #include "Weapons/PS_Weapon.h"
 

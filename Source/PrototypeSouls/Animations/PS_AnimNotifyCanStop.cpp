@@ -1,6 +1,6 @@
 #include "Animations/PS_AnimNotifyCanStop.h"
 #include "Animations/PS_CharacterAnimInstance.h"
-#include "Characters/PS_PlayerCharacter.h"
+#include "Characters/Player/PS_PlayerCharacter.h"
 
 void UPS_AnimNotifyCanStop::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {

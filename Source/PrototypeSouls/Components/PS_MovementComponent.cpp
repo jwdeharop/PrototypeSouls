@@ -1,5 +1,5 @@
 #include "Components/PS_MovementComponent.h"
-#include "Characters/PS_PlayerCharacter.h"
+#include "Characters/Player/PS_PlayerCharacter.h"
 
 float UPS_MovementComponent::GetMaxSpeed() const
 {

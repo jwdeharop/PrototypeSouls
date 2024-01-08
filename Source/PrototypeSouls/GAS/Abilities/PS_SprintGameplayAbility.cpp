@@ -1,6 +1,6 @@
 #include "GAS/Abilities/PS_SprintGameplayAbility.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
-#include "Characters/PS_PlayerCharacter.h"
+#include "Characters/Player/PS_PlayerCharacter.h"
 #include "Components/PS_AbilitySystemComponent.h"
 #include "Libraries/PS_NetLibrary.h"
 

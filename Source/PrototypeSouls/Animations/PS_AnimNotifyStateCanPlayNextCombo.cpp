@@ -1,5 +1,5 @@
 #include "Animations/PS_AnimNotifyStateCanPlayNextCombo.h"
-#include "Characters/PS_PlayerCharacter.h"
+#include "Characters/Player/PS_PlayerCharacter.h"
 
 void UPS_AnimNotifyStateCanPlayNextCombo::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {

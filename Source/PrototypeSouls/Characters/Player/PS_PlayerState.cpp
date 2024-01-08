@@ -1,4 +1,4 @@
-#include "Characters/PS_PlayerState.h"
+#include "Characters/Player/PS_PlayerState.h"
 #include "Components/PS_AbilitySystemComponent.h"
 #include "GAS/AttributeSets/PS_PlayerAttributeSet.h"
 

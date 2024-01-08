@@ -3,8 +3,8 @@
 #include "CoreMinimal.h"
 #include "GameplayEffectTypes.h"
 #include "GameplayTagContainer.h"
-#include "PS_CharacterBase.h"
 #include "PS_PlayerState.h"
+#include "Characters/PS_CharacterBase.h"
 #include "PS_PlayerCharacter.generated.h"
 
 struct FPS_ComboWeaponInfo;
@@ -34,7 +34,7 @@ public:
 
 	bool bCanChangeCombo = false;
 
-	APS_PlayerCharacter(const class FObjectInitializer& ObjectInitializer);
+	APS_PlayerCharacter(const FObjectInitializer& ObjectInitializer);
 
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
