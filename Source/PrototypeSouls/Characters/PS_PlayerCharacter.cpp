@@ -10,7 +10,6 @@
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "GAS/Abilities/PS_GameplayAbility.h"
 #include "GAS/AttributeSets/PS_PlayerAttributeSet.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
@@ -47,16 +46,6 @@ APS_PlayerCharacter::APS_PlayerCharacter(const FObjectInitializer& ObjectInitial
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
-}
-
-UAbilitySystemComponent* APS_PlayerCharacter::GetAbilitySystemComponent() const
-{
-	return AbilitySystemComponent;
-}
-
-UPS_PlayerAttributeSet* APS_PlayerCharacter::GetPlayerAttributeSet() const
-{
-	return PlayerAttributeSet;
 }
 
 bool APS_PlayerCharacter::IsDodging() const
@@ -174,25 +163,6 @@ void APS_PlayerCharacter::Server_SetAuxMovementVector_Implementation(const FVect
 	AuxMovementVector.Normalize();
 }
 
-void APS_PlayerCharacter::AddCharacterAbilities()
-{
-	if (!UPS_NetLibrary::IsServer(this) || !AbilitySystemComponent || AbilitySystemComponent->bAbilitiesGranted)
-		return;
-
-	for (TSubclassOf<UPS_GameplayAbility> Ability : Abilities)
-	{
-		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(Ability, 1, static_cast<int32>(Ability.GetDefaultObject()->InputID), this);
-		const FGameplayTag& InputTag = Ability.GetDefaultObject()->InputTag;
-		if (InputTag.IsValid())
-		{
-			AbilitySpec.DynamicAbilityTags.AddTag(InputTag);
-		}
-		AbilitySystemComponent->GiveAbility(AbilitySpec);
-	}
-
-	AbilitySystemComponent->bAbilitiesGranted = true;
-}
-
 void APS_PlayerCharacter::OnAbilityInputPressed(FGameplayTag GameplayTag)
 {
 	if (AbilitySystemComponent)
@@ -215,18 +185,6 @@ void APS_PlayerCharacter::OnCurrentSpeedChanged(const FOnAttributeChangeData& On
 	{
 		CharacterMovementComponent->MaxWalkSpeed = OnAttributeChangeData.NewValue;
 	}
-}
-
-void APS_PlayerCharacter::InitializeAttributes() const
-{
-	if (!AbilitySystemComponent || !DefaultAttributes)
-		return;
-
-	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
-	EffectContext.AddSourceObject(this);
-
-	const FGameplayEffectSpecHandle NewHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributes, 1, EffectContext);
-	AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*NewHandle.Data.Get(), AbilitySystemComponent);
 }
 
 void APS_PlayerCharacter::OnControllerGetsPlayerState(APS_PlayerState* APSPlayerState)

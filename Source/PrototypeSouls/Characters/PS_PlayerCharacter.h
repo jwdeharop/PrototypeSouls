@@ -1,11 +1,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystemInterface.h"
 #include "GameplayEffectTypes.h"
 #include "GameplayTagContainer.h"
+#include "PS_CharacterBase.h"
 #include "PS_PlayerState.h"
-#include "GameFramework/Character.h"
 #include "PS_PlayerCharacter.generated.h"
 
 struct FPS_ComboWeaponInfo;
@@ -23,7 +22,7 @@ class UPS_InputConfigDataAsset;
 struct FInputActionValue;
 
 UCLASS(config=Game)
-class APS_PlayerCharacter : public ACharacter, public IAbilitySystemInterface
+class APS_PlayerCharacter : public APS_CharacterBase
 {
 	GENERATED_BODY()
 
@@ -40,9 +39,6 @@ public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-
-	UPS_PlayerAttributeSet* GetPlayerAttributeSet() const;
 	APS_Weapon* GetCurrentWeapon() const;
 
 	float GetMaxSpeed() const;
@@ -68,26 +64,16 @@ private:
 	UFUNCTION(Server, Reliable)
 		void Server_SetAuxMovementVector(const FVector2D& MovementVector);
 
-	void AddCharacterAbilities();
 	void OnAbilityInputPressed(FGameplayTag GameplayTag);
 	void OnAbilityInputReleased(FGameplayTag GameplayTag);
 	void OnCurrentSpeedChanged(const FOnAttributeChangeData& OnAttributeChangeData) const;
-	void InitializeAttributes() const;
 	void OnControllerGetsPlayerState(APS_PlayerState* APSPlayerState);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "ASC")
-		UPS_AbilitySystemComponent* AbilitySystemComponent = nullptr;
-	UPROPERTY(EditDefaultsOnly, Category = "ASC")
-		TArray<TSubclassOf<UPS_GameplayAbility>> Abilities;
-	UPROPERTY(EditDefaultsOnly, Category = "ASC")
 		UPS_InputConfigDataAsset* InputConfigDataAsset = nullptr;
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "ASC")
-		TSubclassOf<UGameplayEffect> DefaultAttributes;
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 		UPS_WeaponComboConfig* WeaponComboConfig = nullptr;
-	UPROPERTY(Transient)
-		UPS_PlayerAttributeSet* PlayerAttributeSet = nullptr;
 	UPROPERTY(Transient, Replicated)
 		TWeakObjectPtr<APS_Weapon> CurrentWeapon = nullptr;
 
