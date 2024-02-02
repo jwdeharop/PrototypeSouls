@@ -63,6 +63,8 @@ private:
 
 	UFUNCTION(Server, Reliable)
 		void Server_SetAuxMovementVector(const FVector2D& MovementVector);
+	UFUNCTION(Server, Reliable)
+		void Server_SetUsesRotationYaw(bool bUsesRotationYaw);
 
 	void OnAbilityInputPressed(FGameplayTag GameplayTag);
 	void OnAbilityInputReleased(FGameplayTag GameplayTag);

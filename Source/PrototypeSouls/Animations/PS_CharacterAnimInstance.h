@@ -26,7 +26,6 @@ class UPS_CharacterAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 
 public:
-	FOnAnimationCanStop AnimationCanStop;
 	float GetDirection() const;
 	EPS_AnimationDirection GetAnimationDirection();
 

@@ -121,16 +121,69 @@ bool UPS_AbilityTask_PlayMontageAndWaitForEvent::StopPlayingMontage()
 
 void UPS_AbilityTask_PlayMontageAndWaitForEvent::OnGameplayEvent(FGameplayTag GameplayTag, const FGameplayEventData* GameplayEventData)
 {
+	if (ShouldBroadcastAbilityTaskDelegates())
+	{
+		FGameplayEventData TempData = *GameplayEventData;
+		TempData.EventTag = GameplayTag;
+
+		OnEventReceived.Broadcast(GameplayTag, TempData);
+	}
+}
+
+void UPS_AbilityTask_PlayMontageAndWaitForEvent::OnRemovedGameplayTag(FGameplayTag GameplayTag, const FGameplayEventData* GameplayEventData)
+{
 }
 
 void UPS_AbilityTask_PlayMontageAndWaitForEvent::OnAbilityCancelled()
 {
+	const bool bMontageHasStopPlaying = StopPlayingMontage();
+	const bool bShouldBroadcastAbilityDelegate = ShouldBroadcastAbilityTaskDelegates();
+	if (bMontageHasStopPlaying && bShouldBroadcastAbilityDelegate)
+	{
+		OnCancelled.Broadcast(FGameplayTag(), FGameplayEventData());
+	}
 }
 
 void UPS_AbilityTask_PlayMontageAndWaitForEvent::OnMontageBlendingOut(UAnimMontage* AnimMontage, bool bInterrupted)
 {
+	if (Ability && Ability->GetCurrentMontage() == AnimMontage && MontageToPlay != AnimMontage)
+	{
+		AbilitySystemComponent->ClearAnimatingAbility(Ability);
+
+		if (ACharacter* Character = Cast<ACharacter>(GetAvatarActor()))
+		{
+			const bool bCharacterHasAuthority = Character->GetLocalRole() == ROLE_Authority;
+			const bool bCharacterIsProxy = Character->GetLocalRole() == ROLE_AutonomousProxy;
+			const bool bIsAbilityLocalPredicted = Ability->GetNetExecutionPolicy() == EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+
+			if (bCharacterHasAuthority || (bCharacterIsProxy && bIsAbilityLocalPredicted))
+			{
+				constexpr float InAnimRootMotionTranslationScale = 1.f;
+				Character->SetAnimRootMotionTranslationScale(InAnimRootMotionTranslationScale);
+			}
+			
+		}
+	}
+
+	if (ShouldBroadcastAbilityTaskDelegates())
+	{
+		if (bInterrupted)
+		{
+			OnInterrupted.Broadcast(FGameplayTag(), FGameplayEventData());
+		}
+		else
+		{
+			OnBlendOut.Broadcast(FGameplayTag(), FGameplayEventData());	
+		}
+	}
 }
 
 void UPS_AbilityTask_PlayMontageAndWaitForEvent::OnMontageEnded(UAnimMontage* AnimMontage, bool bInterrupted)
 {
+	if (!bInterrupted && ShouldBroadcastAbilityTaskDelegates())
+	{
+		OnCompleted.Broadcast(FGameplayTag(), FGameplayEventData());
+	}
+
+	EndTask();
 }

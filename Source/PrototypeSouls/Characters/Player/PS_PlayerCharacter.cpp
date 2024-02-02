@@ -140,7 +140,7 @@ void APS_PlayerCharacter::PossessedBy(AController* NewController)
 void APS_PlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME_CONDITION_NOTIFY(APS_PlayerCharacter, AuxMovementVector, COND_None, REPNOTIFY_OnChanged);
+	DOREPLIFETIME_CONDITION_NOTIFY(APS_PlayerCharacter, AuxMovementVector, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(APS_PlayerCharacter, CurrentWeapon, COND_OwnerOnly, REPNOTIFY_OnChanged);
 }
 
@@ -161,6 +161,11 @@ void APS_PlayerCharacter::Server_SetAuxMovementVector_Implementation(const FVect
 {
 	AuxMovementVector = MovementVector;
 	AuxMovementVector.Normalize();
+}
+
+void APS_PlayerCharacter::Server_SetUsesRotationYaw_Implementation(bool bUsesRotationYaw)
+{
+	bUseControllerRotationYaw = bUsesRotationYaw;
 }
 
 void APS_PlayerCharacter::OnAbilityInputPressed(FGameplayTag GameplayTag)
@@ -215,10 +220,12 @@ void APS_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 void APS_PlayerCharacter::Move(const FInputActionValue& Value)
 {
-	if (!Controller || IsDodging())
+	if (!Controller)
 		return;
 
 	bUseControllerRotationYaw = true;
+	Server_SetUsesRotationYaw(bUseControllerRotationYaw);
+
 	const FVector2D MovementVector = Value.Get<FVector2D>();
 	const FRotator Rotation = Controller->GetControlRotation();
 	const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -227,8 +234,11 @@ void APS_PlayerCharacter::Move(const FInputActionValue& Value)
 
 	Server_SetAuxMovementVector(MovementVector);
 
-	AddMovementInput(ForwardDirection, MovementVector.Y);
-	AddMovementInput(RightDirection, MovementVector.X);
+	if (!IsDodging())
+	{
+		AddMovementInput(ForwardDirection, MovementVector.Y);
+		AddMovementInput(RightDirection, MovementVector.X);
+	}
 }
 
 void APS_PlayerCharacter::Look(const FInputActionValue& Value)
@@ -246,5 +256,6 @@ void APS_PlayerCharacter::StopMoving()
 {
 	Server_SetAuxMovementVector(FVector2D::ZeroVector);
 	bUseControllerRotationYaw = false;
+	Server_SetUsesRotationYaw(bUseControllerRotationYaw);
 }
 

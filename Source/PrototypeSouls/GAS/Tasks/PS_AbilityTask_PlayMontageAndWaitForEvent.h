@@ -14,6 +14,16 @@ class UPS_AbilityTask_PlayMontageAndWaitForEvent : public UAbilityTask
 public:
 	UPROPERTY(BlueprintAssignable)
 		FPlayMontageAndWaitForEventDelegate OnCancelled;
+	UPROPERTY(BlueprintAssignable)
+		FPlayMontageAndWaitForEventDelegate OnInterrupted;
+	UPROPERTY(BlueprintAssignable)
+		FPlayMontageAndWaitForEventDelegate OnBlendOut;
+	UPROPERTY(BlueprintAssignable)
+		FPlayMontageAndWaitForEventDelegate OnCompleted;
+	UPROPERTY(BlueprintAssignable)
+		FPlayMontageAndWaitForEventDelegate OnEventReceived;
+	UPROPERTY(BlueprintAssignable)
+		FPlayMontageAndWaitForEventDelegate OnTagRemoved;
 
 	FOnMontageBlendingOutStarted BlendingOutDelegate;
 	FOnMontageEnded MontageEndedDelegate;
@@ -42,6 +52,7 @@ private:
 	bool StopPlayingMontage();
 	
 	void OnGameplayEvent(FGameplayTag GameplayTag, const FGameplayEventData* GameplayEventData);
+	void OnRemovedGameplayTag(FGameplayTag GameplayTag, const FGameplayEventData* GameplayEventData);
 	void OnAbilityCancelled();
 	void OnMontageBlendingOut(UAnimMontage* AnimMontage, bool bInterrupted);
 	void OnMontageEnded(UAnimMontage* AnimMontage, bool bInterrupted);
