@@ -89,13 +89,11 @@ void APS_PlayerCharacter::BeginPlay()
 	{
 		OnRep_PlayerState();
 	}
-	else
+	else if (APS_PlayerController* APSPlayerController = GetController<APS_PlayerController>())
 	{
-		if (APS_PlayerController* APSPlayerController = GetController<APS_PlayerController>())
-		{
-			APSPlayerController->OnControllerGetsPlayerState.AddUObject(this, &ThisClass::OnControllerGetsPlayerState);
-		}
+		APSPlayerController->OnControllerGetsPlayerState.AddUObject(this, &ThisClass::OnControllerGetsPlayerState);
 	}
+
 	bUseControllerRotationYaw = false;
 
 	if (UPS_NetLibrary::IsServer(this))
@@ -136,6 +134,7 @@ void APS_PlayerCharacter::PossessedBy(AController* NewController)
 	PlayerAttributeSet = APSPlayerState->GetPlayerAttributeSet();
 	InitializeAttributes();
 	AddCharacterAbilities();
+	RegisterAbilitySystemComponentBindings();
 }
 
 void APS_PlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -156,6 +155,7 @@ void APS_PlayerCharacter::OnRep_PlayerState()
 	AbilitySystemComponent = UPSAbilitySystemComponent;
 	AbilitySystemComponent->InitAbilityActorInfo(APSPlayerState, this);
 	PlayerAttributeSet = APSPlayerState->GetPlayerAttributeSet();
+	RegisterAbilitySystemComponentBindings();
 }
 
 void APS_PlayerCharacter::Server_SetAuxMovementVector_Implementation(const FVector2D& MovementVector)
@@ -196,6 +196,19 @@ void APS_PlayerCharacter::OnCurrentSpeedChanged(const FOnAttributeChangeData& On
 void APS_PlayerCharacter::OnControllerGetsPlayerState(APS_PlayerState* APSPlayerState)
 {
 	OnRep_PlayerState();
+}
+
+void APS_PlayerCharacter::OnAttackFinished(FGameplayTag GameplayTag, int NewCount)
+{
+	bUseControllerRotationYaw = NewCount > 0;
+}
+
+void APS_PlayerCharacter::RegisterAbilitySystemComponentBindings()
+{
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag(FName("Ability.LightAttack")), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &APS_PlayerCharacter::OnAttackFinished);
+	}
 }
 
 void APS_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -249,8 +262,16 @@ void APS_PlayerCharacter::Look(const FInputActionValue& Value)
 
 	const FVector2D LookAxisVector = Value.Get<FVector2D>();
 
-	AddControllerYawInput(LookAxisVector.X);
-	AddControllerPitchInput(LookAxisVector.Y);
+	if (FollowCamera->IsLockingTarget())
+	{
+		FVector2d LookVectorNormalized = LookAxisVector.GetSafeNormal();
+		FString s;
+	}
+	else
+	{
+		AddControllerYawInput(LookAxisVector.X);
+		AddControllerPitchInput(LookAxisVector.Y);
+	}
 }
 
 void APS_PlayerCharacter::StopMoving()

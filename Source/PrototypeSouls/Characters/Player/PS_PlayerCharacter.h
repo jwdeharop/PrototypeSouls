@@ -71,6 +71,8 @@ private:
 	void OnAbilityInputReleased(FGameplayTag GameplayTag);
 	void OnCurrentSpeedChanged(const FOnAttributeChangeData& OnAttributeChangeData) const;
 	void OnControllerGetsPlayerState(APS_PlayerState* APSPlayerState);
+	void OnAttackFinished(FGameplayTag GameplayTag, int NewCount);
+	void RegisterAbilitySystemComponentBindings();
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "ASC")

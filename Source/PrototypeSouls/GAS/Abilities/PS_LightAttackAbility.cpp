@@ -24,8 +24,6 @@ void UPS_LightAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 		return;
 	}
 
-	APSCharacter->bUseControllerRotationYaw = true;
-
 	if (!PlayCurrentCombo())
 	{
 		K2_EndAbility();
@@ -34,7 +32,13 @@ void UPS_LightAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 
 void UPS_LightAttackAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	if (APS_Weapon* APSWeapon = APSCharacter ? APSCharacter->GetCurrentWeapon() : nullptr)
+	if (!APSCharacter)
+	{
+		Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+		return;
+	}
+
+	if (APS_Weapon* APSWeapon = APSCharacter->GetCurrentWeapon())
 	{
 		APSWeapon->ResetCombo();
 	}
