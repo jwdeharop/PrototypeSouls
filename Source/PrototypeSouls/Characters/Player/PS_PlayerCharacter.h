@@ -7,6 +7,7 @@
 #include "Characters/PS_CharacterBase.h"
 #include "PS_PlayerCharacter.generated.h"
 
+class UPS_PlayerCameraComponent;
 struct FPS_ComboWeaponInfo;
 class UPS_WeaponComboConfig;
 class APS_Weapon;
@@ -37,7 +38,7 @@ public:
 	APS_PlayerCharacter(const FObjectInitializer& ObjectInitializer);
 
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	FORCEINLINE UPS_PlayerCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 	APS_Weapon* GetCurrentWeapon() const;
 
@@ -51,7 +52,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		USpringArmComponent* CameraBoom;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		UCameraComponent* FollowCamera;
+		UPS_PlayerCameraComponent* FollowCamera;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		UInputMappingContext* DefaultMappingContext;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))

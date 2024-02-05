@@ -18,6 +18,7 @@
 #include "Libraries/PS_NetLibrary.h"
 #include "PS_PlayerState.h"
 #include "UnrealNetwork.h"
+#include "Components/PS_PlayerCameraComponent.h"
 #include "Weapons/PS_Weapon.h"
 
 APS_PlayerCharacter::APS_PlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UPS_MovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -43,7 +44,7 @@ APS_PlayerCharacter::APS_PlayerCharacter(const FObjectInitializer& ObjectInitial
 	CameraBoom->TargetArmLength = 400.0f;	
 	CameraBoom->bUsePawnControlRotation = true;
 
-	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	FollowCamera = CreateDefaultSubobject<UPS_PlayerCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 }

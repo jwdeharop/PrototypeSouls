@@ -10,7 +10,8 @@ enum class EPS_AbilityInputID : uint8
 	Cancel,
 	Sprint,
 	Dodge,
-	LightAttack
+	LightAttack,
+	LockTarget
 };
 
 UENUM(BlueprintType)
