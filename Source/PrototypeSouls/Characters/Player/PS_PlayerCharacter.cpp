@@ -200,6 +200,7 @@ void APS_PlayerCharacter::OnControllerGetsPlayerState(APS_PlayerState* APSPlayer
 
 void APS_PlayerCharacter::OnAttackFinished(FGameplayTag GameplayTag, int NewCount)
 {
+	// The tag adding/removing is known by both server and client, so both will know that the character is using control rotation.
 	bUseControllerRotationYaw = NewCount > 0;
 }
 
