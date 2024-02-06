@@ -28,5 +28,4 @@ private:
 
 	bool PlayCurrentCombo();
 	void BindToPressEvent();
-	void OnCanChangeYaw();
 };

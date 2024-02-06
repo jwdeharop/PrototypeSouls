@@ -74,6 +74,7 @@ void UPS_LockTargetAbility::ActivateAbility(const FGameplayAbilitySpecHandle Han
 
 			if (!Hits.IsEmpty())
 			{
+			    // This could be done with Observer pattern (maybe). But I dont have time to do it.
 				Camera->SetLockTarget(Hits[0].GetActor());
 				APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
 				if (PlayerController)

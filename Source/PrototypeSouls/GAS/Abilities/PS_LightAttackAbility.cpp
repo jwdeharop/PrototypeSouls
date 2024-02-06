@@ -103,8 +103,3 @@ void UPS_LightAttackAbility::BindToPressEvent()
 		InputPressTask->ReadyForActivation();
 	}
 }
-
-void UPS_LightAttackAbility::OnCanChangeYaw()
-{
-	APSCharacter->bUseControllerRotationYaw = false;
-}
