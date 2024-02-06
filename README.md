@@ -23,11 +23,32 @@ As for the Gamemplay Effect itself, it is just a Modifier that takes the MaxWalk
 
 ## Dodge
 
-![](https://github.com/jwdeharop/PrototypeSouls/blob/main/ReadmeContent/gifs/dodge.gif)
-
 All Dodges animations are configured in the same animation montage. This animation montage has different sections, depending on the type of dodge (forward, back, right...). Once the ability starts, we get the Dodge Section Name we need. We calculate the direction of the character and with that we return the type of direction.
 
+![](https://github.com/jwdeharop/PrototypeSouls/blob/main/ReadmeContent/gifs/dodge.gif)
+
 If that Section Name is correct, we Activate a Gamemplay Task that plays a montage and waits for some events to happen. And, in the server side, we launch the character in the correct direction. The dodge expects a GameplayTag event that matches the gameplay tag Ability.Dodge.CanRoll. This Tag is sended with an Anim Notification. Once that event is received, we activate another GameplayTask that waits for the input to be pressed again. If the input is pressed correctly, we will roll. 
+
+![](https://github.com/jwdeharop/PrototypeSouls/blob/main/ReadmeContent/gifs/roll.gif)
+
+## Light Attack
+
+I have created a Data Asset to easily configure and create new weapons. With this DataAsset we can configure:
+- The Weapon Type: for now just an Axe.
+- The ComboSections: The prefix's of the combo section.
+- The Montages to play.
+
+When the LightAttackAbility is activated, we try to play the current combo. To do so, we get the information of the Current Weapon equipped by the player. From this information, we access the current montage that has to be played and we generate the ComboSection. (Example: Combo02_1, this means the first part of the combo 02). If that ComboSection is correct, we will activate a GameplayTask that will play the animation montage and wait for some events. At the same time, we activate another GameplayTask that will wait for the input to be pressed again. Once pressed again, we will check if we can play the next part of the combo.
+
+![](https://github.com/jwdeharop/PrototypeSouls/blob/main/ReadmeContent/gifs/attack.gif)
+
+
+
+
+
+  
+
+
 
 
 
