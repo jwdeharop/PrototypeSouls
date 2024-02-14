@@ -8,11 +8,6 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Libraries/PS_NetLibrary.h"
 
-namespace UPS_LockTargetAbility_Consts
-{
-	static constexpr float CameraThresholdDot = 0.6f;
-}
-
 UPS_LockTargetAbility::UPS_LockTargetAbility()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
@@ -31,7 +26,7 @@ void UPS_LockTargetAbility::ActivateAbility(const FGameplayAbilitySpecHandle Han
 
 	if (UPS_NetLibrary::IsClient(Character) && Character->IsLocallyControlled())
 	{
-		UPS_PlayerCameraComponent* Camera = Character->GetFollowCamera();
+		const UPS_PlayerCameraComponent* Camera = Character->GetFollowCamera();
 		if (!Camera)
 		{
 			K2_EndAbility();
