@@ -1,8 +1,15 @@
 #include "Controllers/PS_PlayerController.h"
 #include "AbilitySystemComponent.h"
+#include "Actors/PS_PlayerCameraManager.h"
 #include "Characters/Player/PS_PlayerCharacter.h"
 #include "Characters/Player/PS_PlayerState.h"
 #include "Components/PS_AbilitySystemComponent.h"
+#include "Kismet/GameplayStatics.h"
+
+void APS_PlayerController::TryChangeCameraTarget(const FVector& NormalizedInput)
+{
+	OnTryChangeTarget.Broadcast(NormalizedInput);
+}
 
 void APS_PlayerController::OnPossess(APawn* P)
 {
@@ -30,4 +37,18 @@ void APS_PlayerController::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 
 	OnControllerGetsPlayerState.Broadcast(GetPlayerState<APS_PlayerState>());
+}
+
+void APS_PlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	if (APS_PlayerCameraManager* CameraManager = Cast<APS_PlayerCameraManager>(UGameplayStatics::GetPlayerCameraManager(this, 0)))
+	{
+		CameraManager->OnTargetLocked.AddUniqueDynamic(this, &APS_PlayerController::OnTargetLocked);
+	}
+}
+
+void APS_PlayerController::OnTargetLocked(AActor* LockedTarget)
+{
+	SetIgnoreLookInput(LockedTarget != nullptr);
 }

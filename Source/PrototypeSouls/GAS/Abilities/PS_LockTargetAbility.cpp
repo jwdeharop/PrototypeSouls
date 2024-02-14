@@ -1,6 +1,10 @@
 #include "GAS/Abilities/PS_LockTargetAbility.h"
+
+#include "Actors/PS_PlayerCameraManager.h"
 #include "Characters/Player/PS_PlayerCharacter.h"
 #include "Components/PS_PlayerCameraComponent.h"
+#include "Controllers/PS_PlayerController.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Libraries/PS_NetLibrary.h"
 
@@ -17,7 +21,7 @@ UPS_LockTargetAbility::UPS_LockTargetAbility()
 void UPS_LockTargetAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	const APS_PlayerCharacter* Character = ActorInfo ? Cast<APS_PlayerCharacter>(ActorInfo->AvatarActor) : nullptr;
+	APS_PlayerCharacter* Character = ActorInfo ? Cast<APS_PlayerCharacter>(ActorInfo->AvatarActor) : nullptr;
 
 	if (!Character)
 	{
@@ -25,7 +29,7 @@ void UPS_LockTargetAbility::ActivateAbility(const FGameplayAbilitySpecHandle Han
 		return;
 	}
 
-	if (UPS_NetLibrary::IsClient(Character))
+	if (UPS_NetLibrary::IsClient(Character) && Character->IsLocallyControlled())
 	{
 		UPS_PlayerCameraComponent* Camera = Character->GetFollowCamera();
 		if (!Camera)
@@ -34,14 +38,17 @@ void UPS_LockTargetAbility::ActivateAbility(const FGameplayAbilitySpecHandle Han
 			return;
 		}
 
+		APS_PlayerCameraManager* CameraManager = Cast<APS_PlayerCameraManager>(UGameplayStatics::GetPlayerCameraManager(this, 0));
+		if (!CameraManager)
+		{
+			K2_EndAbility();
+			return;
+		}
+
 		if (Camera->IsLockingTarget())
 		{
-			Camera->SetLockTarget(nullptr);
-			APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
-			if (PlayerController)
-			{
-				PlayerController->SetIgnoreLookInput(false);
-			}
+			TArray<FHitResult> Hits;
+			CameraManager->LockTarget(Character, Hits);
 			K2_EndAbility();
 			return;
 		}
@@ -51,39 +58,44 @@ void UPS_LockTargetAbility::ActivateAbility(const FGameplayAbilitySpecHandle Han
 
 		if (UKismetSystemLibrary::SphereTraceMultiForObjects(Character, StartLocation, StartLocation, Radius, { EObjectTypeQuery::ObjectTypeQuery7}, false, {ActorInfo->AvatarActor.Get()}, EDrawDebugTrace::None, Hits, true))
 		{
-			// We only want the hits that are in front of the camera. Dot product time!
-			Hits = Hits.FilterByPredicate([Camera](const FHitResult& HitResult)
+			// We let the manager filter the data. This happens only locally so we know that the player index will always be 0.
+			CameraManager->LockTarget(Character, Hits);
+			if (APS_PlayerController* Controller = Cast<APS_PlayerController>(Character->GetController()))
 			{
-				const AActor* OtherActor = HitResult.GetActor();
-				if (!OtherActor)
-					return false;
-
-				const FVector& Dir = Camera->GetForwardVector();
-				FVector Offset = OtherActor->GetActorLocation() - Camera->GetComponentLocation();
-				Offset = Offset.GetSafeNormal();
-				const float Dot = FVector::DotProduct(Dir, Offset);
-				return Dot > UPS_LockTargetAbility_Consts::CameraThresholdDot ;
-			});
-
-			Hits.Sort([Character](const FHitResult& HitResult1, const FHitResult& HitResult2)
-			{
-				const float FirstDistance = Character->GetDistanceTo(HitResult1.GetActor());
-				const float SecondDistance = Character->GetDistanceTo(HitResult2.GetActor());
-				return FirstDistance < SecondDistance;
-			});
-
-			if (!Hits.IsEmpty())
-			{
-			    // This could be done with Observer pattern (maybe). But I dont have time to do it.
-				Camera->SetLockTarget(Hits[0].GetActor());
-				APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
-				if (PlayerController)
-				{
-					PlayerController->SetIgnoreLookInput(true);
-				}
+				Controller->OnTryChangeTarget.AddUObject(this, &UPS_LockTargetAbility::TryChangeTarget);
 			}
 		}
 	}
 
 	K2_EndAbility();
+}
+
+void UPS_LockTargetAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+{
+	const APS_PlayerCharacter* Character = ActorInfo ? Cast<APS_PlayerCharacter>(ActorInfo->AvatarActor) : nullptr;
+	UPS_PlayerCameraComponent* Camera = Character ? Character->GetFollowCamera() : nullptr;
+	if (Camera && !Camera->IsLockingTarget())
+	{
+		Camera->OnChangeTarget.Unbind();
+	}
+
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void UPS_LockTargetAbility::TryChangeTarget(const FVector& Normalized)
+{
+	APS_PlayerCharacter* Character = Cast<APS_PlayerCharacter>(GetActorInfo().AvatarActor);
+	UPS_PlayerCameraComponent* Camera = Character ? Character->GetFollowCamera() : nullptr;
+	if (!Camera)
+		return;
+	
+	const FVector& StartLocation = Character->GetActorLocation();
+	TArray<FHitResult> Hits;
+	if (UKismetSystemLibrary::SphereTraceMultiForObjects(Character, StartLocation, StartLocation, Radius, { EObjectTypeQuery::ObjectTypeQuery7}, false, {Character, Camera->GetActorLocked()}, EDrawDebugTrace::None, Hits, true))
+	{
+		if (APS_PlayerCameraManager* CameraManager = Cast<APS_PlayerCameraManager>(UGameplayStatics::GetPlayerCameraManager(this, 0)))
+		{
+			CameraManager->TryChangeTarget(Character, Hits, Normalized);
+		}
+	}
 }

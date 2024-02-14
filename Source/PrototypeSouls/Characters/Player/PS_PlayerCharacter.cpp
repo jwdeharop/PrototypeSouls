@@ -263,10 +263,15 @@ void APS_PlayerCharacter::Look(const FInputActionValue& Value)
 
 	const FVector2D LookAxisVector = Value.Get<FVector2D>();
 
-	if (FollowCamera->IsLockingTarget())
+	if (FollowCamera->IsLockingTarget() && FMath::Abs(LookAxisVector.X) > 0.8f)
 	{
-		FVector2d LookVectorNormalized = LookAxisVector.GetSafeNormal();
-		FString s;
+		APS_PlayerController* PlayerController = GetOwner<APS_PlayerController>();
+		if (PlayerController)
+		{
+			// We tell everyone's bound that we're trying to change the target. Only the Model (camera manager) should be bound to this delegate, but one never knows.
+			const FVector NormalizedInput = FVector(FMath::RoundToFloat(LookAxisVector.X), FMath::RoundToFloat(LookAxisVector.Y), 0.f);
+			PlayerController->TryChangeCameraTarget(NormalizedInput);
+		}
 	}
 	else
 	{
