@@ -13,18 +13,16 @@ class UPS_PlayerCameraComponent : public UCameraComponent
 public:
 	FTargetChanged OnChangeTarget;
 
-	void SetLockTarget(AActor* NewLockTarget);
 	bool IsLockingTarget() const;
-	AActor* GetActorLocked();
-	void Prova(const FVector& Normalized);
+	const AActor* GetActorLocked() const;
 	
 private:
 	UPROPERTY(Transient)
-		AActor* LockTarget = nullptr;
+		const AActor* LockTarget = nullptr;
 
 protected:
 	UFUNCTION()
-		void OnTargetLocked(AActor* LockedTarget);
+		void OnTargetLocked(const AActor* LockedTarget);
 
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

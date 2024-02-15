@@ -1,7 +1,16 @@
 #include "Characters/PS_CharacterBase.h"
+
+#include "WidgetComponent.h"
 #include "Components/PS_AbilitySystemComponent.h"
 #include "GAS/Abilities/PS_GameplayAbility.h"
 #include "Libraries/PS_NetLibrary.h"
+#include "UI/PS_UILockTarget.h"
+
+APS_CharacterBase::APS_CharacterBase(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+{
+	LockWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("LockWidgetComponent"));
+	LockWidgetComponent->SetupAttachment(RootComponent);
+}
 
 UAbilitySystemComponent* APS_CharacterBase::GetAbilitySystemComponent() const
 {
@@ -11,6 +20,16 @@ UAbilitySystemComponent* APS_CharacterBase::GetAbilitySystemComponent() const
 UPS_PlayerAttributeSet* APS_CharacterBase::GetPlayerAttributeSet() const
 {
 	return PlayerAttributeSet;
+}
+
+void APS_CharacterBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (IsLocallyControlled(); UPS_UILockTarget* LockTargetWidget = Cast<UPS_UILockTarget>(LockWidgetComponent->GetWidget()))
+	{
+		LockTargetWidget->SetOwner(this);
+	}
 }
 
 void APS_CharacterBase::AddCharacterAbilities()

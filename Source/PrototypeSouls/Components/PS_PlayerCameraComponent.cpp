@@ -1,31 +1,20 @@
 #include "Components/PS_PlayerCameraComponent.h"
-
 #include "Actors/PS_PlayerCameraManager.h"
 #include "Characters/Player/PS_PlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-
-void UPS_PlayerCameraComponent::SetLockTarget(AActor* NewLockTarget)
-{
-	LockTarget = NewLockTarget;
-}
 
 bool UPS_PlayerCameraComponent::IsLockingTarget() const
 {
 	return LockTarget != nullptr;
 }
 
-AActor* UPS_PlayerCameraComponent::GetActorLocked()
+const AActor* UPS_PlayerCameraComponent::GetActorLocked() const
 {
 	return LockTarget;
 }
 
-void UPS_PlayerCameraComponent::Prova(const FVector& Normalized)
-{
-	OnChangeTarget.ExecuteIfBound(Normalized);
-}
-
-void UPS_PlayerCameraComponent::OnTargetLocked(AActor* LockedTarget)
+void UPS_PlayerCameraComponent::OnTargetLocked(const AActor* LockedTarget)
 {
 	LockTarget = LockedTarget;
 }

@@ -48,7 +48,8 @@ void APS_PlayerController::BeginPlay()
 	}
 }
 
-void APS_PlayerController::OnTargetLocked(AActor* LockedTarget)
+void APS_PlayerController::OnTargetLocked(const AActor* LockedTarget)
 {
+	ResetIgnoreLookInput();
 	SetIgnoreLookInput(LockedTarget != nullptr);
 }

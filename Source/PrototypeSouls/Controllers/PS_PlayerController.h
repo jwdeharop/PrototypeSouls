@@ -27,6 +27,6 @@ protected:
 
 private:
 	UFUNCTION()
-		void OnTargetLocked(AActor* LockedTarget);
+		void OnTargetLocked(const AActor* LockedTarget);
 };
 

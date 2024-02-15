@@ -68,26 +68,32 @@ void UPS_LockTargetAbility::ActivateAbility(const FGameplayAbilitySpecHandle Han
 void UPS_LockTargetAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	const APS_PlayerCharacter* Character = ActorInfo ? Cast<APS_PlayerCharacter>(ActorInfo->AvatarActor) : nullptr;
-	UPS_PlayerCameraComponent* Camera = Character ? Character->GetFollowCamera() : nullptr;
-	if (Camera && !Camera->IsLockingTarget())
+	const UPS_PlayerCameraComponent* Camera = Character ? Character->GetFollowCamera() : nullptr;
+	APS_PlayerController* Controller = Character ? Cast<APS_PlayerController>(Character->GetController()) : nullptr;
+	if (Controller && Camera && !Camera->IsLockingTarget())
 	{
-		Camera->OnChangeTarget.Unbind();
+		Controller->OnTryChangeTarget.RemoveAll(this);
 	}
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UPS_LockTargetAbility::TryChangeTarget(const FVector& Normalized)
+void UPS_LockTargetAbility::TryChangeTarget(const FVector& Normalized) const
 {
 	APS_PlayerCharacter* Character = Cast<APS_PlayerCharacter>(GetActorInfo().AvatarActor);
-	UPS_PlayerCameraComponent* Camera = Character ? Character->GetFollowCamera() : nullptr;
+	const UPS_PlayerCameraComponent* Camera = Character ? Character->GetFollowCamera() : nullptr;
 	if (!Camera)
 		return;
 	
 	const FVector& StartLocation = Character->GetActorLocation();
 	TArray<FHitResult> Hits;
-	if (UKismetSystemLibrary::SphereTraceMultiForObjects(Character, StartLocation, StartLocation, Radius, { EObjectTypeQuery::ObjectTypeQuery7}, false, {Character, Camera->GetActorLocked()}, EDrawDebugTrace::None, Hits, true))
+	if (UKismetSystemLibrary::SphereTraceMultiForObjects(Character, StartLocation, StartLocation, Radius, { EObjectTypeQuery::ObjectTypeQuery7}, false, {Character}, EDrawDebugTrace::None, Hits, true))
 	{
+		Hits = Hits.FilterByPredicate([Camera](const FHitResult& Result)
+		{
+			return Result.GetActor() != Camera->GetActorLocked();
+		});
+
 		if (APS_PlayerCameraManager* CameraManager = Cast<APS_PlayerCameraManager>(UGameplayStatics::GetPlayerCameraManager(this, 0)))
 		{
 			CameraManager->TryChangeTarget(Character, Hits, Normalized);

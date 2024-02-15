@@ -6,7 +6,7 @@
 
 class APS_PlayerCharacter;
 class UPS_PlayerCameraComponent;
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTargetLocked, AActor*, LockedTarget);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTargetLocked, const AActor*, LockedTarget);
 
 UCLASS()
 class APS_PlayerCameraManager : public APlayerCameraManager
