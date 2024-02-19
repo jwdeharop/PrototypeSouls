@@ -6,7 +6,7 @@
 #include "PS_PlayerState.generated.h"
 
 class UPS_AbilitySystemComponent;
-class UPS_PlayerAttributeSet;
+class UPS_BaseAttributeSet;
 
 UCLASS(config=Game)
 class APS_PlayerState : public APlayerState, public IAbilitySystemInterface
@@ -17,12 +17,12 @@ public:
 	APS_PlayerState();
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-	UPS_PlayerAttributeSet* GetPlayerAttributeSet() const;
+	UPS_BaseAttributeSet* GetPlayerAttributeSet() const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "ASC")
 		UPS_AbilitySystemComponent* AbilitySystemComponent = nullptr;
 	UPROPERTY(Transient)
-		UPS_PlayerAttributeSet* PlayerAttributeSet = nullptr;
+		UPS_BaseAttributeSet* PlayerAttributeSet = nullptr;
 };
 

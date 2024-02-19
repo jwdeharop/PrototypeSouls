@@ -5,6 +5,7 @@
 #include "GameplayTagContainer.h"
 #include "PS_PlayerState.h"
 #include "Characters/PS_CharacterBase.h"
+#include "Interfaces/PS_DamageableInterface.h"
 #include "PS_PlayerCharacter.generated.h"
 
 class UPS_PlayerCameraComponent;
@@ -12,7 +13,7 @@ struct FPS_ComboWeaponInfo;
 class UPS_WeaponComboConfig;
 class APS_Weapon;
 class UGameplayEffect;
-class UPS_PlayerAttributeSet;
+class UPS_BaseAttributeSet;
 class UPS_GameplayAbility;
 class UPS_AbilitySystemComponent;
 class USpringArmComponent;
@@ -23,7 +24,7 @@ class UPS_InputConfigDataAsset;
 struct FInputActionValue;
 
 UCLASS(config=Game)
-class APS_PlayerCharacter : public APS_CharacterBase
+class APS_PlayerCharacter : public APS_CharacterBase, public IPS_DamageableInterface
 {
 	GENERATED_BODY()
 
@@ -72,6 +73,7 @@ private:
 	void OnCurrentSpeedChanged(const FOnAttributeChangeData& OnAttributeChangeData) const;
 	void OnControllerGetsPlayerState(APS_PlayerState* APSPlayerState);
 	void OnAttackFinished(FGameplayTag GameplayTag, int NewCount);
+	void OnLightAttackDamage(FGameplayTag GameplayTag, int NewCount);
 	void RegisterAbilitySystemComponentBindings();
 
 protected:
@@ -81,12 +83,15 @@ protected:
 		UPS_WeaponComboConfig* WeaponComboConfig = nullptr;
 	UPROPERTY(Transient, Replicated)
 		TWeakObjectPtr<APS_Weapon> CurrentWeapon = nullptr;
+	UPROPERTY(EditDefaultsOnly)
+		UPS_DamageableComponent* DamageableComponent = nullptr;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay() override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void OnRep_PlayerState() override;
+	virtual UPS_DamageableComponent* GetDamageableComponent() override;
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);

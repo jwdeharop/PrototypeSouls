@@ -17,7 +17,7 @@ UAbilitySystemComponent* APS_CharacterBase::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
-UPS_PlayerAttributeSet* APS_CharacterBase::GetPlayerAttributeSet() const
+UPS_BaseAttributeSet* APS_CharacterBase::GetPlayerAttributeSet() const
 {
 	return PlayerAttributeSet;
 }
@@ -26,9 +26,12 @@ void APS_CharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (IsLocallyControlled(); UPS_UILockTarget* LockTargetWidget = Cast<UPS_UILockTarget>(LockWidgetComponent->GetWidget()))
+	if (IsLocallyControlled())
 	{
-		LockTargetWidget->SetOwner(this);
+		if (UPS_UILockTarget* LockTargetWidget = Cast<UPS_UILockTarget>(LockWidgetComponent->GetWidget()))
+		{
+			LockTargetWidget->SetOwner(this);
+		}
 	}
 }
 

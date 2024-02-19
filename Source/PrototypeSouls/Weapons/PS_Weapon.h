@@ -8,6 +8,17 @@ class USphereComponent;
 enum class EPS_WeaponType : uint8;
 class UStaticMeshComponent;
 
+USTRUCT()
+struct FPS_ComboHit
+{
+	GENERATED_BODY()
+
+	UPROPERTY(Transient)
+		TWeakObjectPtr<AActor> HitActor;
+	UPROPERTY(Transient)
+		TArray<bool> HitInCombo;
+};
+
 UCLASS()
 class APS_Weapon : public AActor
 {
@@ -22,6 +33,7 @@ public:
 
 	uint8 ProcessCombo();
 	void ResetCombo();
+	void ActivateDamageArea(const bool bActivate);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = Weapon)
@@ -39,4 +51,10 @@ protected:
 		void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	virtual void BeginPlay() override;
+
+private:
+	UPROPERTY(Transient)
+		TArray<FPS_ComboHit> HitInformation;
+	UFUNCTION(Server, Reliable)
+		void Server_ManageDamage(AActor* ActorToDamage);
 };

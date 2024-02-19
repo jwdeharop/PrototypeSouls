@@ -10,7 +10,7 @@
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "GAS/AttributeSets/PS_PlayerAttributeSet.h"
+#include "GAS/AttributeSets/PS_BaseAttributeSet.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -18,6 +18,7 @@
 #include "Libraries/PS_NetLibrary.h"
 #include "PS_PlayerState.h"
 #include "UnrealNetwork.h"
+#include "Components/PS_DamageableComponent.h"
 #include "Components/PS_PlayerCameraComponent.h"
 #include "Weapons/PS_Weapon.h"
 
@@ -47,6 +48,8 @@ APS_PlayerCharacter::APS_PlayerCharacter(const FObjectInitializer& ObjectInitial
 	FollowCamera = CreateDefaultSubobject<UPS_PlayerCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
+
+	DamageableComponent = CreateDefaultSubobject<UPS_DamageableComponent>(TEXT("DamageableComponent"));
 }
 
 bool APS_PlayerCharacter::IsDodging() const
@@ -101,10 +104,12 @@ void APS_PlayerCharacter::BeginPlay()
 		// In case InitialWeapon is set, we will spawn it. This spawn will occur only on server side.
 		if (InitialWeapon)
 		{
+			FActorSpawnParameters Params;
+			Params.Owner = this;
 			const TArray<FName>& Sockets = InitialWeapon->GetDefaultObject<APS_Weapon>()->GetWeaponSockets();
 			for (const FName Socket : Sockets)
 			{
-				if (APS_Weapon* SpawnedWeapon = GetWorld()->SpawnActor<APS_Weapon>(InitialWeapon))
+				if (APS_Weapon* SpawnedWeapon = GetWorld()->SpawnActor<APS_Weapon>(InitialWeapon, Params))
 				{
 					CurrentWeapon = SpawnedWeapon;
 					CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, Socket);
@@ -158,6 +163,11 @@ void APS_PlayerCharacter::OnRep_PlayerState()
 	RegisterAbilitySystemComponentBindings();
 }
 
+UPS_DamageableComponent* APS_PlayerCharacter::GetDamageableComponent()
+{
+	return DamageableComponent;
+}
+
 void APS_PlayerCharacter::Server_SetAuxMovementVector_Implementation(const FVector2D& MovementVector)
 {
 	AuxMovementVector = MovementVector;
@@ -204,11 +214,18 @@ void APS_PlayerCharacter::OnAttackFinished(FGameplayTag GameplayTag, int NewCoun
 	bUseControllerRotationYaw = NewCount > 0;
 }
 
+void APS_PlayerCharacter::OnLightAttackDamage(FGameplayTag GameplayTag, int NewCount)
+{
+	// We can activate the sphere.
+	GetCurrentWeapon()->ActivateDamageArea(NewCount > 0);
+}
+
 void APS_PlayerCharacter::RegisterAbilitySystemComponentBindings()
 {
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag(FName("Ability.LightAttack")), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &APS_PlayerCharacter::OnAttackFinished);
+		AbilitySystemComponent->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag(FName("Ability.LightAttack.StartDamage")), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &APS_PlayerCharacter::OnLightAttackDamage);
 	}
 }
 

@@ -22,9 +22,11 @@ private:
 	FTimerHandle OnCanChangeYawTimer;
 
 	UFUNCTION()
-		void OnCancelled();
+		void OnCancelled(FGameplayTag EventTag, FGameplayEventData EventData);
 	UFUNCTION()
 		void OnPressed(float TimeWaited);
+	UFUNCTION()
+		void OnEventReceived(FGameplayTag EventTag, FGameplayEventData EventData);
 
 	bool PlayCurrentCombo();
 	void BindToPressEvent();

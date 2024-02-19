@@ -7,7 +7,7 @@
 
 class UWidgetComponent;
 class UPS_GameplayAbility;
-class UPS_PlayerAttributeSet;
+class UPS_BaseAttributeSet;
 class UPS_AbilitySystemComponent;
 class UGameplayEffect;
 
@@ -19,7 +19,7 @@ class APS_CharacterBase : public ACharacter, public IAbilitySystemInterface
 public:
 	APS_CharacterBase(const FObjectInitializer& ObjectInitializer);
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-	UPS_PlayerAttributeSet* GetPlayerAttributeSet() const;
+	UPS_BaseAttributeSet* GetPlayerAttributeSet() const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "ASC")
@@ -31,7 +31,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 		UWidgetComponent* LockWidgetComponent = nullptr;
 	UPROPERTY(Transient)
-		UPS_PlayerAttributeSet* PlayerAttributeSet = nullptr;
+		UPS_BaseAttributeSet* PlayerAttributeSet = nullptr;
 
 	virtual void BeginPlay() override;
 	
