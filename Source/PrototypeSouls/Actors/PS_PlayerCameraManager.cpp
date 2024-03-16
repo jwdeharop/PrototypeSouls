@@ -1,23 +1,30 @@
 #include "Actors/PS_PlayerCameraManager.h"
 #include "Characters/Player/PS_PlayerCharacter.h"
 #include "Components/PS_PlayerCameraComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 void APS_PlayerCameraManager::LockTarget(APS_PlayerCharacter* Character, TArray<FHitResult>& Hits)
 {
 	UPS_PlayerCameraComponent* Camera = GetCameraComponent();
+	const APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(this, Cast<APlayerController>(Character->GetController())->NetPlayerIndex);
+	if (!CameraManager || !Camera)
+		return;
+
+	const float FOVAngle = CameraManager->GetFOVAngle();
 
 	// We only want the hits that are in front of the camera. Dot product time!
-	Hits = Hits.FilterByPredicate([Camera](const FHitResult& HitResult)
+	Hits = Hits.FilterByPredicate([Camera, FOVAngle](const FHitResult& HitResult)
 	{
 		const AActor* OtherActor = HitResult.GetActor();
 		if (!OtherActor)
 			return false;
-		
-		const FVector& Dir = Camera->GetForwardVector();
-		FVector Offset = OtherActor->GetActorLocation() - Camera->GetComponentLocation();
-		Offset = Offset.GetSafeNormal();
-		const float Dot = FVector::DotProduct(Dir, Offset);
-		return Dot > 0.6f ;
+
+		const FVector DirectionToActor = (OtherActor->GetActorLocation() - Camera->GetComponentLocation()).GetSafeNormal();
+		const FVector& CameraForwardVector = Camera->GetComponentRotation().Vector();
+		const float DotProduct = FVector::DotProduct(CameraForwardVector, DirectionToActor);
+		const float CosFOV = FMath::Cos(FMath::DegreesToRadians(FOVAngle * 0.5f));
+		const float SubTract = FMath::Abs(DotProduct - CosFOV);
+		return SubTract > 0.015 && SubTract < 0.2;
 	});
 
 	SortHitsByDistance(Character, Hits);

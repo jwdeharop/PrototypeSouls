@@ -8,7 +8,7 @@ class UPS_DamageableComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-private:
-	 
+public:
+	void ApplyDamage();
 };
 

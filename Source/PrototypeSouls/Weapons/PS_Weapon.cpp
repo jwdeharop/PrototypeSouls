@@ -1,9 +1,6 @@
 #include "Weapons/PS_Weapon.h"
-
 #include "Characters/Player/PS_PlayerCharacter.h"
 #include "Components/SphereComponent.h"
-#include "Libraries/PS_NetLibrary.h"
-#include "PhysicsEngine/ShapeElem.h"
 
 APS_Weapon::APS_Weapon()
 {
@@ -118,7 +115,4 @@ void APS_Weapon::Server_ManageDamage_Implementation(AActor* ActorToDamage)
 		UE_LOG(LogTemp, Error, TEXT("APS_Weapon::Server_ManageDamage_Implementation damaged actor %s doesn't have a damageable component."), *ActorToDamage->GetName());
 		return;
 	}
-
-	FString s;
-	
 }

@@ -46,6 +46,8 @@ protected:
 		TArray<FName> WeaponSockets; // In case of various sockets, we will spawn an APS_Weapon for each socket. Ej. Double Axe is going to have 2 sockets.
 	UPROPERTY(EditDefaultsOnly, Category = Weapon)
 		uint8 MaxCombos = 3;
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Damage")
+		float Damage = 0.f;
 
 	UFUNCTION()
 		void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

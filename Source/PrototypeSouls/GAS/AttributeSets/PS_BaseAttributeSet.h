@@ -26,6 +26,10 @@ public:
 		FGameplayAttributeData Armor;
 	ATTRIBUTE_ACCESSORS(UPS_BaseAttributeSet, Armor);
 
+	UPROPERTY(BlueprintReadOnly, Category = "ASC | Attributes", ReplicatedUsing = OnRep_Damage)
+		FGameplayAttributeData Damage;
+	ATTRIBUTE_ACCESSORS(UPS_BaseAttributeSet, Damage);
+
 	UPROPERTY(BlueprintReadOnly, Category = "ASC | Attributes", ReplicatedUsing = OnRep_MaxWalkSpeed)
 		FGameplayAttributeData MaxWalkSpeed;
 	ATTRIBUTE_ACCESSORS(UPS_BaseAttributeSet, MaxWalkSpeed)
@@ -40,4 +44,6 @@ private:
 		void OnRep_MaxWalkSpeed(const FGameplayAttributeData& OlMaxWalkSpeed) const;
 	UFUNCTION()
 		void OnRep_CurrentArmor(const FGameplayAttributeData& OldArmor) const;
+	UFUNCTION()
+		void OnRep_Damage(const FGameplayAttributeData& OldDamage);
 };
