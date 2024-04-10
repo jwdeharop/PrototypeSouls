@@ -3,7 +3,13 @@
 #include "Components/PS_PlayerCameraComponent.h"
 #include "Kismet/GameplayStatics.h"
 
-void APS_PlayerCameraManager::LockTarget(APS_PlayerCharacter* Character, TArray<FHitResult>& Hits)
+namespace APS_PlayerCameraManager_Consts
+{
+	constexpr float MinimumSubtraction = 0.015f;
+	constexpr float MaximumSubtraction = 0.2f;
+}
+
+void APS_PlayerCameraManager::LockTarget(APS_PlayerCharacter* Character, TArray<FHitResult>& Hits) const
 {
 	UPS_PlayerCameraComponent* Camera = GetCameraComponent();
 	const APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(this, Cast<APlayerController>(Character->GetController())->NetPlayerIndex);
@@ -24,14 +30,14 @@ void APS_PlayerCameraManager::LockTarget(APS_PlayerCharacter* Character, TArray<
 		const float DotProduct = FVector::DotProduct(CameraForwardVector, DirectionToActor);
 		const float CosFOV = FMath::Cos(FMath::DegreesToRadians(FOVAngle * 0.5f));
 		const float SubTract = FMath::Abs(DotProduct - CosFOV);
-		return SubTract > 0.015 && SubTract < 0.2;
+		return SubTract > APS_PlayerCameraManager_Consts::MinimumSubtraction && SubTract < APS_PlayerCameraManager_Consts::MaximumSubtraction;
 	});
 
 	SortHitsByDistance(Character, Hits);
 	OnTargetLocked.Broadcast(Hits.IsEmpty() ? nullptr : Hits[0].GetActor());
 }
 
-void APS_PlayerCameraManager::TryChangeTarget(APS_PlayerCharacter* Character, TArray<FHitResult>& Hits, const FVector& NormalizedInput)
+void APS_PlayerCameraManager::TryChangeTarget(APS_PlayerCharacter* Character, TArray<FHitResult>& Hits, const FVector& NormalizedInput) const
 {
 	UPS_PlayerCameraComponent* Camera = GetCameraComponent();
 	if (!Camera)
@@ -60,9 +66,9 @@ UPS_PlayerCameraComponent* APS_PlayerCameraManager::GetCameraComponent() const
 void APS_PlayerCameraManager::SortHitsByDistance(APS_PlayerCharacter* Character, TArray<FHitResult>& Hits)
 {
 	Hits.Sort([Character](const FHitResult& HitResult1, const FHitResult& HitResult2)
-{
-	const float FirstDistance = Character->GetDistanceTo(HitResult1.GetActor());
-	const float SecondDistance = Character->GetDistanceTo(HitResult2.GetActor());
-	return FirstDistance < SecondDistance;
-});
+	{
+		const float FirstDistance = Character->GetDistanceTo(HitResult1.GetActor());
+		const float SecondDistance = Character->GetDistanceTo(HitResult2.GetActor());
+		return FirstDistance < SecondDistance;
+	});
 }

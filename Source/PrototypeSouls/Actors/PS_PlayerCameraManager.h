@@ -16,11 +16,11 @@ class APS_PlayerCameraManager : public APlayerCameraManager
 public:
 	FTargetLocked OnTargetLocked;
 
-	void LockTarget(APS_PlayerCharacter* Character, TArray<FHitResult>& Hits);
-	void TryChangeTarget(APS_PlayerCharacter* Character, TArray<FHitResult>& Hits, const FVector& NormalizedInput);
+	void LockTarget(APS_PlayerCharacter* Character, TArray<FHitResult>& Hits) const;
+	void TryChangeTarget(APS_PlayerCharacter* Character, TArray<FHitResult>& Hits, const FVector& NormalizedInput) const;
 
 	UPS_PlayerCameraComponent* GetCameraComponent() const;
 
 private:
-	void SortHitsByDistance(APS_PlayerCharacter* Character, TArray<FHitResult>& Hits);
+	static void SortHitsByDistance(APS_PlayerCharacter* Character, TArray<FHitResult>& Hits);
 };
